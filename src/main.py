@@ -1,11 +1,15 @@
-from lexer import *
+import classlexer
+from classparser import Parser
 
-while True:
-    text = input('Angry German noises>> ')
-    tokens, error = Lexer.run('token.py placeholder', text)
-    if error:
-        print(error.as_string())
-    else:
-        print(tokens)
-        #for i in tokens:
-        #print(i)
+filename = "codeInput.txt"
+f = open(filename, "r")
+text = f.read()
+
+commandline = True
+
+if(commandline):
+    while True:
+        text = input('Input>> ')
+        print(classlexer.run('commandline', text))
+else:
+    print(classlexer.run(filename, text))
