@@ -30,41 +30,32 @@ class BinaryOperationNode:
 class Parser:
     def __init__(self, tokens: list):
         self.tokens = tokens
-        self.index = -1
-        self.current_token = self.tokens[self.index]
-        self.next_character()
 
-    def next_character(self):
-        self.index += 1
-        if self.index < len(self.tokens):
-            self.current_token = self.tokens[self.index]
-        return self.current_token
-
-    def parse(self):
-        result = self.expression()
+    def parse(self, index, tokens):
+        result = self.expression(index, tokens)
         return result
 
-    def factor(self):
-        token = self.current_token
+    def factor(self, index, tokens):
+        token = tokens[index]
         if token[0] in (TOKEN_INT, TOKEN_FLOAT):
-            self.next_character()
+            index += 1
             return NumberNode(token)
 
-    def term(self):
-        left = self.factor()
-        return self.binary_operation(self.factor, (TOKEN_MULTIPLY, TOKEN_DIVIDE), left)
+    def term(self, index, tokens):
+        left = self.factor(index, tokens)
+        return self.binary_operation(self.factor, (TOKEN_MULTIPLY, TOKEN_DIVIDE), left, index+1, tokens)
 
-    def expression(self):
-        left = self.term()
-        return self.binary_operation(self.term, (TOKEN_PLUS, TOKEN_MINUS), left)
+    def expression(self, index, tokens):
+        left = self.term(index, tokens)
+        return self.binary_operation(self.term, (TOKEN_PLUS, TOKEN_MINUS), left, index+1, tokens)
 
     #Using func as decorator
-    def binary_operation(self, func, operations: tuple, left):
-        if self.current_token[0] not in operations:
+    def binary_operation(self, func, operations: tuple, left, index, tokens):
+        if tokens[index][0] not in operations:
             return left
         else:
-            operation_token = self.current_token
-            self.next_character()
-            right = func()
+            operation_token = tokens[index]
+            index += 1
+            right = func(index, tokens)
             left = BinaryOperationNode(left, operation_token, right)
-            return self.binary_operation(func, operations, left)
+            return self.binary_operation(func, operations, left, index, tokens)
