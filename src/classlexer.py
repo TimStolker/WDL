@@ -118,6 +118,5 @@ def run(filename: str, text: str) -> list:
     tokens = lexer.next_token(tokens, 0, text, 0)
     #Make AST
     parser = Parser(tokens)
-    ast = parser.parse()
+    ast = parser.parse(0, tokens)
     return ast
-
