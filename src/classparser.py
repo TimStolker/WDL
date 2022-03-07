@@ -37,6 +37,7 @@ class Parser:
 
     def factor(self, index: int, tokens: list) -> NumberNode:
         token = tokens[index]
+
         if token[0] in (TOKEN_INT, TOKEN_FLOAT):
             index += 1
             return NumberNode(token)
