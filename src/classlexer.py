@@ -1,9 +1,11 @@
 from classtoken import *
-from classparser import Parser
+from classparser import *
+from classinterpreter import *
 
 #########################################
 # LEXER
 #########################################
+
 
 class Lexer:
     def __init__(self, filename: str, text: str) -> None:
@@ -119,4 +121,7 @@ def run(filename: str, text: str) -> list:
     #Make AST
     parser = Parser(tokens)
     ast = parser.parse(0, tokens)
-    return ast
+    #Interpreter
+    interpreter = Interpreter()
+    result = interpreter.visit(ast)
+    return result
