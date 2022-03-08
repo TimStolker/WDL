@@ -24,9 +24,3 @@ class Interpreter:
                 return left/right
             else:
                 raise Exception("Divide by 0 is not possible")
-
-    def visit_UnaryOperationNode(self, node):
-        number = self.visit(node.node)
-        if node.operation_token[0] == TokensEnum.TOKEN_MINUS:
-            number = number * -1
-        return number
