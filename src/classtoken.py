@@ -6,25 +6,38 @@ from typing import Type
 
 
 class TokensEnum(Enum):
-    TOKEN_INT = 'NUMMER'
-    TOKEN_FLOAT = 'SCHWEBER'
-    TOKEN_CHAR = 'CHARAKTER'
-    TOKEN_PLUS = 'PLUS'
-    TOKEN_MINUS = 'MINUS'
-    TOKEN_MULTIPLY = 'MULTIPLIZIEREN'
-    TOKEN_DIVIDE = 'TEILEN'
-    TOKEN_LPAREN = 'LKLAMMER'
-    TOKEN_RPAREN = 'RKLAMMER'
-    TOKEN_EQUAL = 'GLEICH'
-    TOKEN_GREATER = 'GRÖSSER'
-    TOKEN_LESSER = 'WENIGER'
-    TOKEN_ERROR = 'ERROR'
-    TOKEN_EOF = 'ENDE DER DATEI'
+    # Special tokens
+    TOKEN_INT           = 'NUMMER'
+    TOKEN_NINT          = 'NEGATIVE NUMMER'
+    TOKEN_FLOAT         = 'SCHWEBER'
+    TOKEN_PLUS          = '+'
+    TOKEN_MINUS         = '-'
+    TOKEN_MULTIPLY      = '*'
+    TOKEN_DIVIDE        = '/'
+    TOKEN_LPAREN        = '('
+    TOKEN_RPAREN        = ')'
+    TOKEN_EQUAL         = '='
+    TOKEN_GREATER       = '>'
+    TOKEN_LESSER        = '<'
+    TOKEN_ERROR         = 'ERROR'
+    TOKEN_EOF           = 'EOF'
+    TOKEN_NAME = 'NAME'
+
+    # Reserved words
+    IF = 'ALS'
+    ELSE = 'ANDERS'
+    THEN = 'DANN'
+    WHILE = 'WAHREND'
+    LOOP = 'WIEDERHOLEN'
+    FUNCTION = 'ß'
+    VAR = 'VAR'
+
+
 
 
 class Token:
-    def __init__(self, type_: TokensEnum, value: str) -> None:
-        self.type = type_
+    def __init__(self, token_type: TokensEnum, value: str) -> None:
+        self.type = token_type
         self.value = value
 
     def __str__(self) -> str:
