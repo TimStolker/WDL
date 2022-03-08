@@ -108,7 +108,25 @@ class Lexer:
         elif current_char.isalpha():
             letters = current_char + self.next_word(text, index + 1)
             index += len(letters)
-            tokens.append((TokensEnum.TOKEN_CHAR, letters))
+
+            # Check for var type
+            if letters == 'VAR':
+                tokens.append((TokensEnum.VAR, letters))
+            elif letters == 'ALS':
+                tokens.append((TokensEnum.IF, letters))
+            elif letters == 'ANDERS':
+                tokens.append((TokensEnum.ELSE, letters))
+            elif letters == 'DANN':
+                tokens.append((TokensEnum.THEN, letters))
+            elif letters == 'WAHREND':
+                tokens.append((TokensEnum.WHILE, letters))
+            elif letters == 'WIEDERHOLEN':
+                tokens.append((TokensEnum.LOOP, letters))
+            elif letters == 'ß':
+                tokens.append((TokensEnum.FUNCTION, letters))
+            else:
+                # Variable name
+                tokens.append((TokensEnum.TOKEN_NAME, letters))
             return self.next_token(tokens, index, text, line)
 
         elif current_char == '\n':
@@ -124,11 +142,12 @@ def run(filename: str, text: str) -> list:
     tokens = []
     lexer = Lexer(filename, text)
     tokens = lexer.next_token(tokens, 0, text, 0)
+    #return tokens
     #Make AST
     parser = Parser(tokens)
     ast = parser.parse(0, tokens)
+    #return ast
     #Interpreter
     interpreter = Interpreter()
     result = interpreter.visit(ast)
     return result
-    #return ast
