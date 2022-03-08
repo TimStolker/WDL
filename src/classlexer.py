@@ -13,28 +13,33 @@ class Lexer:
         self.text = text
 
     def check_eof(self, text: str, position: int) -> bool:
+        # Check of the current position is still in the text
         return position > len(text) - 1
 
     def next_digit(self, text: str, position: int, dot_count: int) -> str:
-        if not self.check_eof(text, position) and text[position].isdigit() or not self.check_eof(text, position) and \
-                text[position] == '.':
+        # Check if the current character is a digit or a dot
+        if not self.check_eof(text, position) and text[position].isdigit() or not self.check_eof(text, position) and text[position] == '.':
             if text[position] == '.':
                 if dot_count == 1:
-                    raise Exception("DU DUMMKOPF, EIN SCHWEBER HAT NUR EINEN PUNKT")
+                    raise Exception("Float only has 1 dot")
+
                 dot_count += 1
                 return text[position] + self.next_digit(text, position + 1, dot_count)
+
             elif text[position].isdigit():
                 return text[position] + self.next_digit(text, position + 1, dot_count)
         return ''
 
     def next_word(self, text: str, position: int) -> str:
+        # Check if the current character is alphabetical
         if not self.check_eof(text, position) and text[position].isalpha():
             return text[position] + self.next_word(text, position + 1)
         return ''
 
     def next_token(self, tokens: list, index: int, text: str, line: int) -> list:
+        # Check if the current position in still in the text
         if index > len(text) - 1:
-            tokens.append((TOKEN_EOF, ''))
+            tokens.append((TokensEnum.TOKEN_EOF, ''))
             return tokens
 
         current_char = text[index]
@@ -43,66 +48,67 @@ class Lexer:
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '+':
-            tokens.append((TOKEN_PLUS, '+'))
+            tokens.append((TokensEnum.TOKEN_PLUS, '+'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '-':
-            tokens.append((TOKEN_MINUS, '-'))
+            tokens.append((TokensEnum.TOKEN_MINUS, '-'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '/':
-            tokens.append((TOKEN_DIVIDE, '/'))
+            tokens.append((TokensEnum.TOKEN_DIVIDE, '/'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '*':
-            tokens.append((TOKEN_MULTIPLY, '*'))
+            tokens.append((TokensEnum.TOKEN_MULTIPLY, '*'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '(':
-            tokens.append((TOKEN_LPAREN, '('))
+            tokens.append((TokensEnum.TOKEN_LPAREN, '('))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == ')':
-            tokens.append((TOKEN_RPAREN, ')'))
+            tokens.append((TokensEnum.TOKEN_RPAREN, ')'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '[':
-            tokens.append((TOKEN_LBRACKET, '['))
+            tokens.append((TokensEnum.TOKEN_LBRACKET, '['))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == ']':
-            tokens.append((TOKEN_RBRACKET, ']'))
+            tokens.append((TokensEnum.TOKEN_RBRACKET, ']'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '=':
-            tokens.append((TOKEN_EQUAL, '='))
+            tokens.append((TokensEnum.TOKEN_EQUAL, '='))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '>':
-            tokens.append((TOKEN_GREATER, '>'))
+            tokens.append((TokensEnum.TOKEN_GREATER, '>'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == '<':
-            tokens.append((TOKEN_LESSER, '<'))
+            tokens.append((TokensEnum.TOKEN_LESSER, '<'))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char == ',':
-            tokens.append((TOKEN_COMMA, ','))
+            tokens.append((TokensEnum.TOKEN_COMMA, ','))
             return self.next_token(tokens, index + 1, text, line)
 
         elif current_char.isdigit():
             digit = current_char + self.next_digit(text, index + 1, 0)
             index += len(digit)
+            # Check for float
             if '.' in digit:
-                tokens.append((TOKEN_FLOAT, float(digit)))
+                tokens.append((TokensEnum.TOKEN_FLOAT, float(digit)))
             else:
-                tokens.append((TOKEN_INT, int(digit)))
+                tokens.append((TokensEnum.TOKEN_INT, int(digit)))
             return self.next_token(tokens, index, text, line)
 
         elif current_char.isalpha():
             letters = current_char + self.next_word(text, index + 1)
             index += len(letters)
-            tokens.append((TOKEN_CHAR, letters))
+            tokens.append((TokensEnum.TOKEN_CHAR, letters))
             return self.next_token(tokens, index, text, line)
 
         elif current_char == '\n':
@@ -125,3 +131,4 @@ def run(filename: str, text: str) -> list:
     interpreter = Interpreter()
     result = interpreter.visit(ast)
     return result
+    #return ast
