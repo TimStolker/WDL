@@ -101,7 +101,7 @@ class Parser:
 
         # Check for INT or FLOAT
         if token[0] in (TokensEnum.TOKEN_INT, TokensEnum.TOKEN_FLOAT):
-            return NumberNode(token), index
+            return NumberNode(token), index+1
 
         elif tokens[index][0] == TokensEnum.VAR:
             if tokens[index+1][0] != TokensEnum.TOKEN_NAME:
@@ -114,14 +114,14 @@ class Parser:
                     raise Exception("Expected '='")
                 else:
                     expr, new_index = self.expression(index+3, tokens)
-                    return VarNode(Token(TokensEnum.TOKEN_NAME,var_name), expr), new_index
+                    return VarNode(Token(TokensEnum.TOKEN_NAME,var_name), expr), new_index+1
 
         # Check for (
         elif token[0] == TokensEnum.TOKEN_LPAREN:
             expr, new_index = self.expression(index+1, tokens)
             # Check for )
             if tokens[new_index][0] == TokensEnum.TOKEN_RPAREN:
-                return expr, new_index
+                return expr, new_index+1
             else:
                 raise Exception("No ) found", tokens[new_index], new_index)
 
@@ -130,8 +130,7 @@ class Parser:
 
         # Left side of operation
         left, new_index = self.factor(index, tokens)
-        #print("left", left)
-        return self.binary_operation(self.factor, (TokensEnum.TOKEN_MULTIPLY, TokensEnum.TOKEN_DIVIDE), left, new_index+1, tokens)
+        return self.binary_operation(self.factor, (TokensEnum.TOKEN_MULTIPLY, TokensEnum.TOKEN_DIVIDE), left, new_index, tokens)
 
     def expression(self, index: int, tokens: list) -> Tuple[Node,int]:
         # An expression is a plus or minus node
@@ -145,6 +144,6 @@ class Parser:
             return left, index
         else:
             operation_token = tokens[index]
-            right, void_index = func(index+1, tokens)
+            right, new_index = func(index+1, tokens)
             left = BinaryOperationNode(left, operation_token, right)
-            return self.binary_operation(func, operations, left, index+2, tokens)
+            return self.binary_operation(func, operations, left ,new_index, tokens)
