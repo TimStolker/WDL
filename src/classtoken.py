@@ -31,6 +31,7 @@ class TokensEnum(Enum):
     LOOP = 'WIEDERHOLEN'
     FUNCTION = 'ß'
     VAR = 'VAR'
+    ENDE = 'ENDE'
 
 
 
