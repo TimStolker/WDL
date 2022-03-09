@@ -1,6 +1,7 @@
 from numbers import Real
 from classtoken import *
 
+
 class Interpreter:
     def visit(self, node):
         method_name = f'visit_{type(node).__name__}'
