@@ -17,7 +17,7 @@ class NumberNode:
 
 
 class BinaryOperationNode:
-    def __init__(self, left_node: NumberNode, operation_token: Token, right_node: NumberNode):
+    def __init__(self, left_node: 'Node', operation_token: Token, right_node: 'Node'):
         self.left_node = left_node
         self.operation_token = operation_token
         self.right_node = right_node
@@ -30,12 +30,12 @@ class BinaryOperationNode:
 
 
 class VarNode:
-    def __init__(self, token: Token):
-        self.token = token
-        self.value = token.value
+    def __init__(self, name: Token, value: 'Node'):
+        self.name = name
+        self.value = value
 
     def __str__(self) -> str:
-        return f'Var: {self.value}'
+        return f'Var: ({self.name},{self.value})'
 
 
 class AssignNode:
@@ -78,7 +78,7 @@ class FunctionNode:
     def __str__(self) -> str:
         return f'Function: {self.function_name}, {self.return_type}'
 
-Node = Union[NumberNode,BinaryOperationNode]
+Node = Union[NumberNode,BinaryOperationNode,VarNode]
 
 #########################################
 # PARSER
@@ -103,6 +103,19 @@ class Parser:
         if token[0] in (TokensEnum.TOKEN_INT, TokensEnum.TOKEN_FLOAT):
             return NumberNode(token), index
 
+        elif tokens[index][0] == TokensEnum.VAR:
+            if tokens[index+1][0] != TokensEnum.TOKEN_NAME:
+                raise Exception("Expected variable name")
+            else:
+                # Get the value
+                var_name = tokens[index+1][1]
+                print("var name:", var_name)
+                if tokens[index+2][0] != TokensEnum.TOKEN_EQUAL:
+                    raise Exception("Expected '='")
+                else:
+                    expr, new_index = self.expression(index+3, tokens)
+                    return VarNode(Token(TokensEnum.TOKEN_NAME,var_name), expr), new_index
+
         # Check for (
         elif token[0] == TokensEnum.TOKEN_LPAREN:
             expr, new_index = self.expression(index+1, tokens)
@@ -117,16 +130,18 @@ class Parser:
 
         # Left side of operation
         left, new_index = self.factor(index, tokens)
+        #print("left", left)
         return self.binary_operation(self.factor, (TokensEnum.TOKEN_MULTIPLY, TokensEnum.TOKEN_DIVIDE), left, new_index+1, tokens)
 
     def expression(self, index: int, tokens: list) -> Tuple[Node,int]:
         # An expression is a plus or minus node
+
         left, void_index = self.term(index, tokens)
         return self.binary_operation(self.term, (TokensEnum.TOKEN_PLUS, TokensEnum.TOKEN_MINUS), left, void_index, tokens)
 
     #Using func as decorator
-    def binary_operation(self, func, operations: tuple, left: Union[NumberNode, BinaryOperationNode], index: int, tokens: list) -> Tuple[Node,int]:
-        if tokens[index][0] not in operations:
+    def binary_operation(self, func, operations: tuple, left: Node, index: int, tokens: list) -> Tuple[Node,int]:
+        if tokens[index][0] not in operations or tokens[index][1] == 'EOF':
             return left, index
         else:
             operation_token = tokens[index]
