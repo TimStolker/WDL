@@ -39,7 +39,7 @@ class Lexer:
     def next_token(self, tokens: list, index: int, text: str, line: int) -> list:
         # Check if the current position in still in the text
         if index > len(text) - 1:
-            tokens.append((TokensEnum.TOKEN_EOF, ''))
+            tokens.append((TokensEnum.TOKEN_EOF, 'EOF'))
             return tokens
 
         current_char = text[index]
@@ -124,6 +124,8 @@ class Lexer:
                 tokens.append((TokensEnum.LOOP, letters))
             elif letters == 'ß':
                 tokens.append((TokensEnum.FUNCTION, letters))
+            elif letters == 'ENDE':
+                tokens.append((TokensEnum.ENDE, letters))
             else:
                 # Variable name
                 tokens.append((TokensEnum.TOKEN_NAME, letters))
