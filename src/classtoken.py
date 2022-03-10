@@ -8,7 +8,6 @@ from typing import Type
 class TokensEnum(Enum):
     # Special tokens
     TOKEN_INT           = 'NUMMER'
-    TOKEN_NINT          = 'NEGATIVE NUMMER'
     TOKEN_FLOAT         = 'SCHWEBER'
     TOKEN_PLUS          = '+'
     TOKEN_MINUS         = '-'
