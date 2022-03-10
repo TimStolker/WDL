@@ -1,0 +1,4 @@
+VAR a = 5 ENDE
+VAR b = 10 * 2 ENDE
+VAR testvar = 1*(2+2) ENDE
+a + ( b - a ) * testvar ENDE
