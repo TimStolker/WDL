@@ -72,19 +72,21 @@ Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode]
 
 def parse(index: int, tokens: list, ast_list: list) -> list:
     result, index = expression(index, tokens)
-    print("parse index result:", type(result), index)
     ast_list.append([result])
     # In case if the code input ends with an if statement (needs further research)
     #if tokens[index][1] == 'EOF':
     #    return ast_list
-    if tokens[index+1][1] == 'EOF':
+    print("parser: ", tokens[index])
+    # This still needs fixing, if statements tend to return index+1 sometimes
+    if tokens[index][1] == 'EOF':
+        return ast_list
+    elif tokens[index+1][1] == 'EOF':
         return ast_list
     else:
         return parse(index+1, tokens, ast_list)
 
 
 def appendelifcases(index: int, tokens: list, cases: list) -> Tuple[list, int]:
-    # Current token
     if tokens[index][0] != TokensEnum.ELSE_IF:
         return cases, index
     condition, then_index = expression(index+1, tokens)
@@ -92,8 +94,8 @@ def appendelifcases(index: int, tokens: list, cases: list) -> Tuple[list, int]:
         raise Exception("No 'DANN' keyword found in 'ANDDAN' statement")
     else:
         expr, new_index = expression(then_index+1, tokens)
-        cases.append((condition,expr))
-        return appendelifcases(new_index+1, tokens, cases)
+        cases.append((expr,condition))
+        return appendelifcases(new_index, tokens, cases)
 
 
 def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
@@ -107,15 +109,16 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
     else:
         # Get the expression after 'DANN'
         expr, elif_index = expression(then_index+1, tokens)
+        cases.append((expr,condition))
         if tokens[elif_index][0] == TokensEnum.ELSE_IF:
             # Store the 'ANDDAN' cases
-            cases, new_index = appendelifcases(elif_index+1, tokens, cases)
+            cases, new_index = appendelifcases(elif_index, tokens, cases)
             if tokens[new_index][0] == TokensEnum.ELSE:
                 else_case, else_index = expression(new_index+1, tokens)
-            return IfNode(cases, else_case), else_index
+                return IfNode(cases, else_case), else_index
+            return IfNode(cases, else_case), new_index
         elif tokens[elif_index][0] == TokensEnum.ELSE:
             else_case, else_index = expression(elif_index + 1, tokens)
-            print("else: ", else_index, tokens[else_index][0])
             return IfNode(cases, else_case), else_index
         else:
             return IfNode(cases, else_case), elif_index
