@@ -1,4 +1,11 @@
-VAR a = 5 ENDE
-VAR b = 10 * 2 ENDE
-VAR testvar = 1*(2+2) ENDE
-a + ( b - a ) * testvar ENDE
+ALS 10 == 5 DANN
+10+4
+ANDERS
+20+4
+SLA
+VAR a = 10 ENDE
+a > 5 ENDE
+a+0 ENDE
+
+
+
