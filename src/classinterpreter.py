@@ -69,14 +69,20 @@ class Interpreter:
         elif node.operation_token[0] == TokensEnum.TOKEN_DOUBLE_EQUAL:
             return left==right
         else:
-            print("token: ", node.operation_token[0])
+            print("ERROR with token: ", node.operation_token[0])
 
     def visit_VarNode(self, node: VarNode, var_list: list) -> Node:
         # Appends the var name to the list
         var_list.append(node.name)
         return node
 
-    def visit_IfNode(self, node: IfNode, var_list: list) -> None:
+    def visit_VarAccessNode(self, node: VarAccessNode, var_list: list) -> Union[Node, int]:
+        var_name = node.token[1]
+        index = 0
+        value = self.searchVarValue(var_list, var_name, index)
+        return value
+
+    def visit_IfNode(self, node: IfNode, var_list: list) -> Union[None,int]:
         # Go through every case
         case_index = 0
         expr_value = self.gothroughcases(node, var_list, case_index)
@@ -108,8 +114,8 @@ class Interpreter:
         if index > len(node.cases)-1:
             return None
         else:
-            condition = node.cases[index][0]
-            expr = node.cases[index][1]
+            condition = node.cases[index][1]
+            expr = node.cases[index][0]
             condition_value = self.visit(condition, var_list)
             if condition_value == True:
                 expr_value = self.visit(expr, var_list)
