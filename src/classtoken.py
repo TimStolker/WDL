@@ -16,14 +16,22 @@ class TokensEnum(Enum):
     TOKEN_LPAREN        = '('
     TOKEN_RPAREN        = ')'
     TOKEN_EQUAL         = '='
-    TOKEN_GREATER       = '>'
-    TOKEN_LESSER        = '<'
+    TOKEN_BEGIN_FUNCTION = '{'
+
     TOKEN_ERROR         = 'ERROR'
     TOKEN_EOF           = 'EOF'
     TOKEN_NAME = 'NAME'
 
+    # Conditional tokens
+    TOKEN_GREATER       = '>'
+    TOKEN_LESSER        = '<'
+    TOKEN_GREATER_EQUAL = '>='
+    TOKEN_LESSER_EQUAL  = '<='
+    TOKEN_DOUBLE_EQUAL  = '=='
+
     # Reserved words
     IF = 'ALS'
+    ELSE_IF = 'ANDDAN'
     ELSE = 'ANDERS'
     THEN = 'DANN'
     WHILE = 'WAHREND'
@@ -31,6 +39,10 @@ class TokensEnum(Enum):
     FUNCTION = 'ß'
     VAR = 'VAR'
     ENDE = 'ENDE'
+
+    # End words
+    SLA = 'SLA'
+    END_FUNCTION = '}'
 
 
 
