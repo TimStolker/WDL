@@ -122,7 +122,7 @@ def next_token(tokens: list, index: int, text: str, line: int) -> list:
             tokens.append((TokensEnum.VAR, letters))
         elif letters == 'ALS':
             tokens.append((TokensEnum.IF, letters))
-        elif letters == 'ANDDAN':
+        elif letters == 'ANDALS':
             tokens.append((TokensEnum.ELSE_IF, letters))
         elif letters == 'ANDERS':
             tokens.append((TokensEnum.ELSE, letters))
