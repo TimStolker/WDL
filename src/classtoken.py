@@ -31,7 +31,7 @@ class TokensEnum(Enum):
 
     # Reserved words
     IF = 'ALS'
-    ELSE_IF = 'ANDDAN'
+    ELSE_IF = 'ANDALS'
     ELSE = 'ANDERS'
     THEN = 'DANN'
     WHILE = 'WAHREND'
