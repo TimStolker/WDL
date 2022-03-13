@@ -75,16 +75,29 @@ def next_token(tokens: list, index: int, text: str, line: int) -> list:
         return next_token(tokens, index + 1, text, line)
 
     elif current_char == '=':
-        tokens.append((TokensEnum.TOKEN_EQUAL, '='))
-        return next_token(tokens, index + 1, text, line)
+        # Check if the token is '=' or '=='
+        if text[index+1] == '=':
+            tokens.append((TokensEnum.TOKEN_DOUBLE_EQUAL, '=='))
+            return next_token(tokens, index + 2, text, line)
+        else:
+            tokens.append((TokensEnum.TOKEN_EQUAL, '='))
+            return next_token(tokens, index + 1, text, line)
 
     elif current_char == '>':
-        tokens.append((TokensEnum.TOKEN_GREATER, '>'))
-        return next_token(tokens, index + 1, text, line)
+        if text[index + 1] == '=':
+            tokens.append((TokensEnum.TOKEN_GREATER_EQUAL, '>='))
+            return next_token(tokens, index + 2, text, line)
+        else:
+            tokens.append((TokensEnum.TOKEN_GREATER, '>'))
+            return next_token(tokens, index + 1, text, line)
 
     elif current_char == '<':
-        tokens.append((TokensEnum.TOKEN_LESSER, '<'))
-        return next_token(tokens, index + 1, text, line)
+        if text[index + 1] == '=':
+            tokens.append((TokensEnum.TOKEN_LESSER_EQUAL, '<='))
+            return next_token(tokens, index + 2, text, line)
+        else:
+            tokens.append((TokensEnum.TOKEN_LESSER, '<'))
+            return next_token(tokens, index + 1, text, line)
 
     elif current_char == ',':
         tokens.append((TokensEnum.TOKEN_COMMA, ','))
@@ -109,6 +122,8 @@ def next_token(tokens: list, index: int, text: str, line: int) -> list:
             tokens.append((TokensEnum.VAR, letters))
         elif letters == 'ALS':
             tokens.append((TokensEnum.IF, letters))
+        elif letters == 'ANDDAN':
+            tokens.append((TokensEnum.ELSE_IF, letters))
         elif letters == 'ANDERS':
             tokens.append((TokensEnum.ELSE, letters))
         elif letters == 'DANN':
@@ -121,6 +136,8 @@ def next_token(tokens: list, index: int, text: str, line: int) -> list:
             tokens.append((TokensEnum.FUNCTION, letters))
         elif letters == 'ENDE':
             tokens.append((TokensEnum.ENDE, letters))
+        elif letters == 'SLA':
+            tokens.append((TokensEnum.SLA, letters))
         else:
             # Variable name
             tokens.append((TokensEnum.TOKEN_NAME, letters))
@@ -138,7 +155,6 @@ def run(filename: str, text: str) -> list:
     #Identify the tokens
     tokens = []
     tokens = next_token(tokens, 0, text, 0)
-
     # Make AST
     #parser = Parser(tokens)
     ast_list = []
@@ -149,10 +165,12 @@ def run(filename: str, text: str) -> list:
     vars_list = []
     ast_list = []
     ast_list, vars_list = splitVars(ast, ast_list, vars_list, index)
+    print("ast: ", ast_list)
+    print("vars: ", vars_list[0][0])
     # Interpreter
     interpreter = Interpreter()
     result_list = []
-    print(ast_list)
+    #print(ast_list)
     for i in range(len(ast_list)):
         result = interpreter.visit(ast_list[i][0], vars_list)
         result_list.append(result)
@@ -160,6 +178,7 @@ def run(filename: str, text: str) -> list:
 
 
 def splitVars(ast: list, ast_list: list, vars_list:list, index: int) -> Tuple[list,list]:
+    # Splits the variables from the ast list and returns both lists
     if index > len(ast)-1:
         return ast_list, vars_list
     elif type(ast[index][0]) == VarNode:
