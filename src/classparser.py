@@ -1,12 +1,12 @@
 from classtoken import *
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 #########################################
 # NODES
 #########################################
 
 
 class NumberNode:
-    def __init__(self, token: Token):
+    def __init__(self, token: Token) -> None:
         self.token = token
 
     def __str__(self) -> str:
@@ -17,7 +17,7 @@ class NumberNode:
 
 
 class VarAccessNode:
-    def __init__(self, token: Token):
+    def __init__(self, token: Token) -> None:
         self.token = token
 
     def __str__(self) -> str:
@@ -28,7 +28,7 @@ class VarAccessNode:
 
 
 class BinaryOperationNode:
-    def __init__(self, left_node: 'Node', operation_token: Token, right_node: 'Node'):
+    def __init__(self, left_node: 'Node', operation_token: Token, right_node: 'Node') -> None:
         self.left_node = left_node
         self.operation_token = operation_token
         self.right_node = right_node
@@ -41,35 +41,20 @@ class BinaryOperationNode:
 
 
 class VarNode:
-    def __init__(self, name: Token, var_value: 'Node'):
+    def __init__(self, name: Token, var_value: 'Node') -> None:
         self.name = name
         self.var_value = var_value
 
     def __str__(self) -> str:
         return f'Var: ({self.name},{self.var_value})'
 
-class ConditionalNode:
-    def __init__(self, left: Union[VarNode, NumberNode], condition: Token, right :Union[VarNode, NumberNode]) -> None:
-        self.left = left
-        self.condition = condition
-        self.right = right
-
-    def __str__(self) -> str:
-        return f'Conditional: ({self.left}, {self.condition}, {self.right})'
-
-
-class IfElseNode:
-    def __init__(self, condition: ConditionalNode, block: list, else_node: Token) -> None:
-        self.condition = condition
-        self.if_block = block
-        self.else_node = else_node
-
-    def __str__(self) -> str:
-        return f'IfElse: ({self.condition})'
-
+class IfNode:
+    def __init__(self, cases: list, else_case: Union['Node', None]) -> None:
+        self.cases = cases
+        self.else_case = else_case
 
 class FunctionNode:
-    def __init__(self, function_name: str, arguments: list, block: list, return_type: Token):
+    def __init__(self, function_name: str, arguments: list, block: list, return_type: Token) -> None:
         self.function_name = function_name
         self.arguments = arguments
         self.code_block = block
@@ -78,7 +63,7 @@ class FunctionNode:
     def __str__(self) -> str:
         return f'Function: {self.function_name}, {self.return_type}'
 
-Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode]
+Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode]
 
 #########################################
 # PARSER
@@ -87,11 +72,53 @@ Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode]
 
 def parse(index: int, tokens: list, ast_list: list) -> list:
     result, index = expression(index, tokens)
+    print("parse index result:", type(result), index)
     ast_list.append([result])
+    # In case if the code input ends with an if statement (needs further research)
+    #if tokens[index][1] == 'EOF':
+    #    return ast_list
     if tokens[index+1][1] == 'EOF':
         return ast_list
     else:
         return parse(index+1, tokens, ast_list)
+
+
+def appendelifcases(index: int, tokens: list, cases: list) -> Tuple[list, int]:
+    # Current token
+    if tokens[index][0] != TokensEnum.ELSE_IF:
+        return cases, index
+    condition, then_index = expression(index+1, tokens)
+    if tokens[then_index][0] != TokensEnum.THEN:
+        raise Exception("No 'DANN' keyword found in 'ANDDAN' statement")
+    else:
+        expr, new_index = expression(then_index+1, tokens)
+        cases.append((condition,expr))
+        return appendelifcases(new_index+1, tokens, cases)
+
+
+def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
+
+    cases = []
+    else_case = None
+    # Get the conditional expression
+    condition, then_index = expression(index, tokens)
+    if tokens[then_index][0] != TokensEnum.THEN:
+        raise Exception("No 'DANN' keyword found for if statement")
+    else:
+        # Get the expression after 'DANN'
+        expr, elif_index = expression(then_index+1, tokens)
+        if tokens[elif_index][0] == TokensEnum.ELSE_IF:
+            # Store the 'ANDDAN' cases
+            cases, new_index = appendelifcases(elif_index+1, tokens, cases)
+            if tokens[new_index][0] == TokensEnum.ELSE:
+                else_case, else_index = expression(new_index+1, tokens)
+            return IfNode(cases, else_case), else_index
+        elif tokens[elif_index][0] == TokensEnum.ELSE:
+            else_case, else_index = expression(elif_index + 1, tokens)
+            print("else: ", else_index, tokens[else_index][0])
+            return IfNode(cases, else_case), else_index
+        else:
+            return IfNode(cases, else_case), elif_index
 
 
 def factor(index: int, tokens: list) -> Tuple[Node,int,]:
@@ -104,8 +131,41 @@ def factor(index: int, tokens: list) -> Tuple[Node,int,]:
     if token[0] in (TokensEnum.TOKEN_INT, TokensEnum.TOKEN_FLOAT):
         return NumberNode(token), index+1
 
-    # Check for Var type
-    elif tokens[index][0] == TokensEnum.VAR:
+    # Check for Var name
+    elif tokens[index][0] == TokensEnum.TOKEN_NAME:
+        return VarAccessNode(token), index+1
+
+    # Check for (
+    elif token[0] == TokensEnum.TOKEN_LPAREN:
+        expr, new_index = expression(index+1, tokens)
+        # Check for )
+        if tokens[new_index][0] == TokensEnum.TOKEN_RPAREN:
+            return expr, new_index+1
+        else:
+            raise Exception("No ) found", tokens[new_index], new_index)
+
+    # Check for IF statement
+    elif token[0] == TokensEnum.IF:
+        if_expression, new_index = if_expr(index+1, tokens)
+        return if_expression, new_index
+
+
+def term(index: int, tokens: list) -> Tuple[Node,int]:
+    # A term is a mutiply or devision node
+
+    # Left side of operation
+    left, new_index = factor(index, tokens)
+    return binary_operation(factor, (TokensEnum.TOKEN_MULTIPLY, TokensEnum.TOKEN_DIVIDE), left, new_index, tokens)
+
+def arithmic(index: int, tokens:list) -> Tuple[Node,int]:
+    left, new_index = term(index, tokens)
+    return binary_operation(term, (TokensEnum.TOKEN_PLUS, TokensEnum.TOKEN_MINUS), left, new_index, tokens)
+
+def expression(index: int, tokens: list) -> Tuple[Node,int]:
+    # An expression is a plus or minus node
+
+    # Check for variable declaration
+    if tokens[index][0] == TokensEnum.VAR:
         if tokens[index+1][0] != TokensEnum.TOKEN_NAME:
             raise Exception("Expected variable name")
         else:
@@ -118,34 +178,8 @@ def factor(index: int, tokens: list) -> Tuple[Node,int,]:
                 var = VarNode(tokens[index+1], expr)
                 return var, new_index
 
-    # Check for Var name
-    elif tokens[index][0] == TokensEnum.TOKEN_NAME:
-        return VarAccessNode(token), index+1
-
-
-    # Check for (
-    elif token[0] == TokensEnum.TOKEN_LPAREN:
-        expr, new_index = expression(index+1, tokens)
-        # Check for )
-        if tokens[new_index][0] == TokensEnum.TOKEN_RPAREN:
-            return expr, new_index+1
-        else:
-            raise Exception("No ) found", tokens[new_index], new_index)
-
-
-def term(index: int, tokens: list) -> Tuple[Node,int]:
-    # A term is a mutiply or devision node
-
-    # Left side of operation
-    left, new_index = factor(index, tokens)
-    return binary_operation(factor, (TokensEnum.TOKEN_MULTIPLY, TokensEnum.TOKEN_DIVIDE), left, new_index, tokens)
-
-
-def expression(index: int, tokens: list) -> Tuple[Node,int]:
-    # An expression is a plus or minus node
-
-    left, void_index= term(index, tokens)
-    return binary_operation(term, (TokensEnum.TOKEN_PLUS, TokensEnum.TOKEN_MINUS), left, void_index, tokens)
+    left, new_index= arithmic(index, tokens)
+    return binary_operation(arithmic, (TokensEnum.TOKEN_GREATER, TokensEnum.TOKEN_LESSER, TokensEnum.TOKEN_LESSER_EQUAL, TokensEnum.TOKEN_GREATER_EQUAL, TokensEnum.TOKEN_DOUBLE_EQUAL), left, new_index, tokens)
 
 
 #Using func as decorator
@@ -153,7 +187,7 @@ def binary_operation(func, operations: tuple, left: Node, index: int, tokens: li
     # A binary operation is an algorithmic expression
 
     # Check for endline
-    if tokens[index][0] == TokensEnum.ENDE:
+    if tokens[index][0] == TokensEnum.ENDE or tokens[index][0] == TokensEnum.END_FUNCTION or tokens[index][0] == TokensEnum.SLA:
         return left, index
     elif tokens[index][0] not in operations or index >= len(tokens):
         return left, index
