@@ -91,7 +91,7 @@ def appendelifcases(index: int, tokens: list, cases: list) -> Tuple[list, int]:
         return cases, index
     condition, then_index = expression(index+1, tokens)
     if tokens[then_index][0] != TokensEnum.THEN:
-        raise Exception("No 'DANN' keyword found in 'ANDDAN' statement")
+        raise Exception("No 'DANN' keyword found in 'ANDALS' statement")
     else:
         expr, new_index = expression(then_index+1, tokens)
         cases.append((expr,condition))
@@ -111,7 +111,7 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
         expr, elif_index = expression(then_index+1, tokens)
         cases.append((expr,condition))
         if tokens[elif_index][0] == TokensEnum.ELSE_IF:
-            # Store the 'ANDDAN' cases
+            # Store the 'ANDALS' cases
             cases, new_index = appendelifcases(elif_index, tokens, cases)
             if tokens[new_index][0] == TokensEnum.ELSE:
                 else_case, else_index = expression(new_index+1, tokens)
