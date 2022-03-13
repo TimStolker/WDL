@@ -165,13 +165,11 @@ def run(filename: str, text: str) -> list:
     vars_list = []
     ast_list = []
     ast_list, vars_list = splitVars(ast, ast_list, vars_list, index)
-    print("ast: ", ast_list)
-    print("vars: ", vars_list[0][0])
     # Interpreter
     interpreter = Interpreter()
     result_list = []
-    #print(ast_list)
     for i in range(len(ast_list)):
+        print("forloop: ",ast_list[i][0])
         result = interpreter.visit(ast_list[i][0], vars_list)
         result_list.append(result)
     return result_list
