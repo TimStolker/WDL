@@ -1,16 +1,22 @@
+VAR result = 1 ENDE
+WAHREND result < 5 WIEDERHOLEN
+result = result*2
+NELOHREDEIW
+
+result+0 ENDE
+
 VAR a = 10 ENDE
 VAR b = 5 ENDE
 
 ALS a > 10 DANN
 a = a*b
+ANDALS a == 10 DANN
+a = a-b
 ANDERS
 a = a/b
 SLA
 
 a+0 ENDE
-
-
-
 
 
 
