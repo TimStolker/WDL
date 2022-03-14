@@ -42,6 +42,7 @@ class TokensEnum(Enum):
 
     # End words
     SLA = 'SLA'
+    NELOHREDEIW = 'NELOHREDEIW'
     END_FUNCTION = '}'
 
 
