@@ -161,28 +161,14 @@ def run(filename: str, text: str) -> list:
     ast = parse(0, tokens, ast_list)
     # split vars from list
 
-    index = 0
-    vars_list = []
-    ast_list = []
-    ast_list, vars_list = splitVars(ast, ast_list, vars_list, index)
+
     # Interpreter
     interpreter = Interpreter()
+    vars_list = []
     result_list = []
     for i in range(len(ast_list)):
-        print("forloop: ",ast_list[i][0])
-        result = interpreter.visit(ast_list[i][0], vars_list)
-        result_list.append(result)
+        result, vars_list = interpreter.visit(ast_list[i][0], vars_list)
+        if result != None:
+            result_list.append(result)
     return result_list
-
-
-def splitVars(ast: list, ast_list: list, vars_list:list, index: int) -> Tuple[list,list]:
-    # Splits the variables from the ast list and returns both lists
-    if index > len(ast)-1:
-        return ast_list, vars_list
-    elif type(ast[index][0]) == VarNode:
-        vars_list.append([ast[index][0]])
-        return splitVars(ast, ast_list, vars_list, index+1)
-    else:
-        ast_list.append([ast[index][0]])
-        return splitVars(ast, ast_list, vars_list, index+1)
 
