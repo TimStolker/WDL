@@ -26,6 +26,11 @@ class VarAccessNode:
     def __repr__(self) -> str:
         return self.__str__()
 
+class VarAssignNode:
+    def __init__(self, var_node: 'VarNode', value: 'Node'):
+        self.name = var_node[1]
+        self.value = value
+
 
 class BinaryOperationNode:
     def __init__(self, left_node: 'Node', operation_token: Token, right_node: 'Node') -> None:
@@ -63,7 +68,7 @@ class FunctionNode:
     def __str__(self) -> str:
         return f'Function: {self.function_name}, {self.return_type}'
 
-Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode]
+Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode, VarAssignNode]
 
 #########################################
 # PARSER
@@ -74,12 +79,10 @@ def parse(index: int, tokens: list, ast_list: list) -> list:
     result, index = expression(index, tokens)
     ast_list.append([result])
     # In case if the code input ends with an if statement (needs further research)
-    #if tokens[index][1] == 'EOF':
-    #    return ast_list
-    print("parser: ", tokens[index])
     # This still needs fixing, if statements tend to return index+1 sometimes
     if tokens[index][1] == 'EOF':
         return ast_list
+
     elif tokens[index+1][1] == 'EOF':
         return ast_list
     else:
@@ -175,11 +178,21 @@ def expression(index: int, tokens: list) -> Tuple[Node,int]:
             # Get the value
             #var_name = tokens[index+1][1]
             if tokens[index+2][0] != TokensEnum.TOKEN_EQUAL:
-                raise Exception("Expected '='")
+                raise Exception("Expected '=' for variable declare")
             else:
                 expr, new_index = expression(index+3, tokens)
                 var = VarNode(tokens[index+1], expr)
                 return var, new_index
+    # Check for
+    elif tokens[index][0] == TokensEnum.TOKEN_NAME:
+        if tokens[index+1][0] != TokensEnum.TOKEN_EQUAL:
+            left, new_index = arithmic(index, tokens)
+            return binary_operation(arithmic, (TokensEnum.TOKEN_GREATER, TokensEnum.TOKEN_LESSER, TokensEnum.TOKEN_LESSER_EQUAL,TokensEnum.TOKEN_GREATER_EQUAL, TokensEnum.TOKEN_DOUBLE_EQUAL), left, new_index, tokens)
+        else:
+            expr, new_index = expression(index+2, tokens)
+            var = VarAssignNode(tokens[index], expr)
+            return var, new_index
+
 
     left, new_index= arithmic(index, tokens)
     return binary_operation(arithmic, (TokensEnum.TOKEN_GREATER, TokensEnum.TOKEN_LESSER, TokensEnum.TOKEN_LESSER_EQUAL, TokensEnum.TOKEN_GREATER_EQUAL, TokensEnum.TOKEN_DOUBLE_EQUAL), left, new_index, tokens)
