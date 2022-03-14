@@ -2,6 +2,9 @@ from numbers import Real
 from classtoken import *
 from classparser import *
 from typing import Tuple, Union
+import sys
+
+sys.setrecursionlimit(1000)
 
 class Interpreter:
     def visit(self, node: Node, var_list: list) -> int:
@@ -106,6 +109,18 @@ class Interpreter:
                 else_value, var_list = self.visit(node.else_case, var_list)
                 return else_value, var_list
             return expr_value, var_list
+
+    def visit_WhileNode(self, node: WhileNode, var_list: list) -> Tuple[None,list]:
+        var_list = self.loopNode(node, var_list)
+        return None, var_list
+
+    def loopNode(self, node: WhileNode, var_list: list) -> list:
+        condition, var_list = self.visit(node.condition_node, var_list)
+        if condition != True:
+            return var_list
+        else:
+            void_value, var_list = self.visit(node.body_node, var_list)
+            return self.loopNode(node, var_list)
 
     def checkAssigned(self, var_list: list, var_name: str, value: Node, index: int) -> list:
         if index > len(var_list)-1:
