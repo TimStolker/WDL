@@ -103,6 +103,13 @@ def next_token(tokens: list, index: int, text: str, line: int) -> list:
         tokens.append((TokensEnum.TOKEN_COMMA, ','))
         return next_token(tokens, index + 1, text, line)
 
+    elif current_char == '{':
+        tokens.append((TokensEnum.TOKEN_BEGIN_FUNCTION, '{'))
+        return next_token(tokens, index + 1, text, line)
+    elif current_char == '}':
+        tokens.append((TokensEnum.TOKEN_END_FUNCTION, '}'))
+        return next_token(tokens, index + 1, text, line)
+
     elif current_char.isdigit():
         digit = current_char + next_digit(text, index + 1, 0)
         index += len(digit)
