@@ -102,6 +102,9 @@ class Interpreter:
         elif expr_value == True:
             return None, var_list
         else:
+            if node.else_case:
+                else_value, var_list = self.visit(node.else_case, var_list)
+                return else_value, var_list
             return expr_value, var_list
 
     def checkAssigned(self, var_list: list, var_name: str, value: Node, index: int) -> list:
