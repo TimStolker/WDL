@@ -58,6 +58,11 @@ class IfNode:
         self.cases = cases
         self.else_case = else_case
 
+class WhileNode:
+    def __init__(self, condition_node: 'Node', body_node: 'Node'):
+        self.condition_node = condition_node
+        self.body_node = body_node
+
 class FunctionNode:
     def __init__(self, function_name: str, arguments: list, block: list, return_type: Token) -> None:
         self.function_name = function_name
@@ -126,6 +131,14 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
         else:
             return IfNode(cases, else_case), elif_index
 
+def while_expr(index: int, tokens: list) -> Tuple[WhileNode, int]:
+
+    condition, loop_index = expression(index, tokens)
+    if tokens[loop_index][0] != TokensEnum.LOOP:
+        raise Exception("No 'WIEDERHOLEN' declared after condition")
+    else:
+        body, body_index = expression(loop_index+1, tokens)
+        return WhileNode(condition, body), body_index
 
 def factor(index: int, tokens: list) -> Tuple[Node,int,]:
     # The factor is the node that will be used in a term
@@ -155,6 +168,10 @@ def factor(index: int, tokens: list) -> Tuple[Node,int,]:
         if_expression, new_index = if_expr(index+1, tokens)
         return if_expression, new_index
 
+    # Check for While statement
+    elif token[0] == TokensEnum.WHILE:
+        while_expression, new_index = while_expr(index+1, tokens)
+        return while_expression, new_index
 
 def term(index: int, tokens: list) -> Tuple[Node,int]:
     # A term is a mutiply or devision node
@@ -203,7 +220,7 @@ def binary_operation(func, operations: tuple, left: Node, index: int, tokens: li
     # A binary operation is an algorithmic expression
 
     # Check for endline
-    if tokens[index][0] == TokensEnum.ENDE or tokens[index][0] == TokensEnum.END_FUNCTION or tokens[index][0] == TokensEnum.SLA:
+    if tokens[index][0] == TokensEnum.ENDE or tokens[index][0] == TokensEnum.END_FUNCTION or tokens[index][0] == TokensEnum.SLA or tokens[index][0] == TokensEnum.NELOHREDEIW:
         return left, index
     elif tokens[index][0] not in operations or index >= len(tokens):
         return left, index
