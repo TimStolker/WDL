@@ -16,7 +16,9 @@ class TokensEnum(Enum):
     TOKEN_LPAREN        = '('
     TOKEN_RPAREN        = ')'
     TOKEN_EQUAL         = '='
-    TOKEN_BEGIN_FUNCTION = '{'
+    TOKEN_BEGIN_FUNCTION= '{'
+    TOKEN_END_FUNCTION  = '}'
+    TOKEN_COMMA         = ','
 
     TOKEN_ERROR         = 'ERROR'
     TOKEN_EOF           = 'EOF'
@@ -43,7 +45,6 @@ class TokensEnum(Enum):
     # End words
     SLA = 'SLA'
     NELOHREDEIW = 'NELOHREDEIW'
-    END_FUNCTION = '}'
 
 
 
