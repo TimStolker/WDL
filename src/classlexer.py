@@ -138,6 +138,8 @@ def next_token(tokens: list, index: int, text: str, line: int) -> list:
             tokens.append((TokensEnum.ENDE, letters))
         elif letters == 'SLA':
             tokens.append((TokensEnum.SLA, letters))
+        elif letters == 'NELOHREDEIW':
+            tokens.append((TokensEnum.NELOHREDEIW, letters))
         else:
             # Variable name
             tokens.append((TokensEnum.TOKEN_NAME, letters))
@@ -161,13 +163,12 @@ def run(filename: str, text: str) -> list:
     ast = parse(0, tokens, ast_list)
     # split vars from list
 
-
     # Interpreter
     interpreter = Interpreter()
     vars_list = []
     result_list = []
-    for i in range(len(ast_list)):
-        result, vars_list = interpreter.visit(ast_list[i][0], vars_list)
+    for i in range(len(ast)):
+        result, vars_list = interpreter.visit(ast[i][0], vars_list)
         if result != None:
             result_list.append(result)
     return result_list
