@@ -1,17 +1,15 @@
-VAR a = 10*(20+5)-7*20 ENDE
+VAR a = 10 ENDE
+VAR b = 5 ENDE
 
-
-
-ALS a > 9*(9*9)-2 DANN
-10+1
-ANDALS a >= 10*(10+1) DANN
-1
-ANDALS a < 20 DANN
-2
+ALS a > 10 DANN
+a = a*b
 ANDERS
-3
+a = a/b
 SLA
-a+1
+
+a+0
+
+
 
 
 
