@@ -38,9 +38,10 @@ class TokensEnum(Enum):
     THEN = 'DANN'
     WHILE = 'WAHREND'
     LOOP = 'WIEDERHOLEN'
-    FUNCTION = 'ß'
+    FUNCTION = 'FUNKTION'
     VAR = 'VAR'
     ENDE = 'ENDE'
+    RETURN = 'RETURN'
 
     # End words
     SLA = 'SLA'
