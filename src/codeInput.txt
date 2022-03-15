@@ -2,13 +2,14 @@ FUNKTION testfunc (a,b){
     VAR c = 0
     c = a+5
     a=a*b+c
-    return a
+    RETURN a+1
 }
 
 VAR yoinky = 10 ENDE
 VAR sploinky = 12 ENDE
 VAR b = 0 ENDE
 b=testfunc(yoinky , sploinky)
+b+0 ENDE
 
 ALS b > 0 DANN
 b=b+5
