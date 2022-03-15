@@ -34,8 +34,7 @@ def next_word(text: str, position: int) -> str:
 def next_token(tokens: list, index: int, text: str, line: int) -> list:
     # Check if the current position in still in the text
     if index > len(text) - 1:
-        tokens.append((TokensEnum.TOKEN_EOF, 'EOF'))
-        return tokens
+        return tokens+[(TokensEnum.TOKEN_EOF, 'EOF')]
 
     current_char = text[index]
 
@@ -43,114 +42,95 @@ def next_token(tokens: list, index: int, text: str, line: int) -> list:
         return next_token(tokens, index + 1, text, line)
 
     elif current_char == '+':
-        tokens.append((TokensEnum.TOKEN_PLUS, '+'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_PLUS, '+')], index + 1, text, line)
 
     elif current_char == '-':
-        tokens.append((TokensEnum.TOKEN_MINUS, '-'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_MINUS, '-')], index + 1, text, line)
 
     elif current_char == '/':
-        tokens.append((TokensEnum.TOKEN_DIVIDE, '/'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_DIVIDE, '/')], index + 1, text, line)
 
     elif current_char == '*':
-        tokens.append((TokensEnum.TOKEN_MULTIPLY, '*'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_MULTIPLY, '*')], index + 1, text, line)
 
     elif current_char == '(':
-        tokens.append((TokensEnum.TOKEN_LPAREN, '('))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_LPAREN, '(')], index + 1, text, line)
 
     elif current_char == ')':
-        tokens.append((TokensEnum.TOKEN_RPAREN, ')'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_RPAREN, ')')], index + 1, text, line)
 
     elif current_char == '[':
-        tokens.append((TokensEnum.TOKEN_LBRACKET, '['))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_LBRACKET, '[')], index + 1, text, line)
 
     elif current_char == ']':
-        tokens.append((TokensEnum.TOKEN_RBRACKET, ']'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_RBRACKET, ']')], index + 1, text, line)
 
     elif current_char == '=':
         # Check if the token is '=' or '=='
         if text[index+1] == '=':
-            tokens.append((TokensEnum.TOKEN_DOUBLE_EQUAL, '=='))
-            return next_token(tokens, index + 2, text, line)
+            return next_token(tokens+[(TokensEnum.TOKEN_DOUBLE_EQUAL, '==')], index + 2, text, line)
         else:
-            tokens.append((TokensEnum.TOKEN_EQUAL, '='))
-            return next_token(tokens, index + 1, text, line)
+            return next_token(tokens+[(TokensEnum.TOKEN_EQUAL, '=')], index + 1, text, line)
 
     elif current_char == '>':
         if text[index + 1] == '=':
-            tokens.append((TokensEnum.TOKEN_GREATER_EQUAL, '>='))
-            return next_token(tokens, index + 2, text, line)
+            return next_token(tokens+[(TokensEnum.TOKEN_GREATER_EQUAL, '>=')], index + 2, text, line)
         else:
-            tokens.append((TokensEnum.TOKEN_GREATER, '>'))
-            return next_token(tokens, index + 1, text, line)
+            return next_token(tokens+[(TokensEnum.TOKEN_GREATER, '>')], index + 1, text, line)
 
     elif current_char == '<':
         if text[index + 1] == '=':
-            tokens.append((TokensEnum.TOKEN_LESSER_EQUAL, '<='))
-            return next_token(tokens, index + 2, text, line)
+            return next_token(tokens+[(TokensEnum.TOKEN_LESSER_EQUAL, '<=')], index + 2, text, line)
         else:
-            tokens.append((TokensEnum.TOKEN_LESSER, '<'))
-            return next_token(tokens, index + 1, text, line)
+            return next_token(tokens+[(TokensEnum.TOKEN_LESSER, '<')], index + 1, text, line)
 
     elif current_char == ',':
-        tokens.append((TokensEnum.TOKEN_COMMA, ','))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens+[(TokensEnum.TOKEN_COMMA, ',')], index + 1, text, line)
 
     elif current_char == '{':
-        tokens.append((TokensEnum.TOKEN_BEGIN_FUNCTION, '{'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens + [(TokensEnum.TOKEN_BEGIN_FUNCTION, '{')], index + 1, text, line)
     elif current_char == '}':
-        tokens.append((TokensEnum.TOKEN_END_FUNCTION, '}'))
-        return next_token(tokens, index + 1, text, line)
+        return next_token(tokens + [(TokensEnum.TOKEN_END_FUNCTION, '}')], index + 1, text, line)
 
     elif current_char.isdigit():
         digit = current_char + next_digit(text, index + 1, 0)
-        index += len(digit)
         # Check for float
         if '.' in digit:
-            tokens.append((TokensEnum.TOKEN_FLOAT, float(digit)))
+            return next_token(tokens+[(TokensEnum.TOKEN_FLOAT, float(digit))], index+len(digit), text, line)
         else:
-            tokens.append((TokensEnum.TOKEN_INT, int(digit)))
-        return next_token(tokens, index, text, line)
+            return next_token(tokens + [(TokensEnum.TOKEN_INT, int(digit))], index + len(digit), text, line)
 
     elif current_char.isalpha():
         letters = current_char + next_word(text, index + 1)
-        index += len(letters)
 
         # Check for var type
         if letters == 'VAR':
-            tokens.append((TokensEnum.VAR, letters))
+            return next_token(tokens+[(TokensEnum.VAR, letters)], index+len(letters), text, line)
         elif letters == 'ALS':
-            tokens.append((TokensEnum.IF, letters))
+            return next_token(tokens + [(TokensEnum.IF, letters)], index + len(letters), text, line)
         elif letters == 'ANDALS':
-            tokens.append((TokensEnum.ELSE_IF, letters))
+            return next_token(tokens + [(TokensEnum.ELSE_IF, letters)], index + len(letters), text, line)
         elif letters == 'ANDERS':
-            tokens.append((TokensEnum.ELSE, letters))
+            return next_token(tokens + [(TokensEnum.ELSE, letters)], index + len(letters), text, line)
         elif letters == 'DANN':
-            tokens.append((TokensEnum.THEN, letters))
+            return next_token(tokens + [(TokensEnum.THEN, letters)], index + len(letters), text, line)
         elif letters == 'WAHREND':
-            tokens.append((TokensEnum.WHILE, letters))
+            return next_token(tokens + [(TokensEnum.WHILE, letters)], index + len(letters), text, line)
         elif letters == 'WIEDERHOLEN':
-            tokens.append((TokensEnum.LOOP, letters))
-        elif letters == 'ß':
-            tokens.append((TokensEnum.FUNCTION, letters))
+            return next_token(tokens + [(TokensEnum.LOOP, letters)], index + len(letters), text, line)
+        elif letters == 'FUNKTION':
+            return next_token(tokens + [(TokensEnum.FUNCTION, letters)], index + len(letters), text, line)
         elif letters == 'ENDE':
-            tokens.append((TokensEnum.ENDE, letters))
+            return next_token(tokens + [(TokensEnum.ENDE, letters)], index + len(letters), text, line)
         elif letters == 'SLA':
-            tokens.append((TokensEnum.SLA, letters))
+            return next_token(tokens + [(TokensEnum.SLA, letters)], index + len(letters), text, line)
         elif letters == 'NELOHREDEIW':
-            tokens.append((TokensEnum.NELOHREDEIW, letters))
+            return next_token(tokens + [(TokensEnum.NELOHREDEIW, letters)], index + len(letters), text, line)
+        elif letters == 'RETURN':
+            return next_token(tokens + [(TokensEnum.RETURN, letters)], index + len(letters), text, line)
         else:
             # Variable name
-            tokens.append((TokensEnum.TOKEN_NAME, letters))
-        return next_token(tokens, index, text, line)
+            return next_token(tokens + [(TokensEnum.TOKEN_NAME, letters)], index + len(letters), text, line)
 
     elif current_char == '\n':
         return next_token(tokens, index + 1, text, line + 1)
@@ -168,15 +148,18 @@ def run(filename: str, text: str) -> list:
     #parser = Parser(tokens)
     ast_list = []
     ast = parse(0, tokens, ast_list)
-    # split vars from list
 
     # Interpreter
     interpreter = Interpreter()
     vars_list = []
+    func_list = []
     result_list = []
     for i in range(len(ast)):
-        result, vars_list = interpreter.visit(ast[i][0], vars_list)
+        result, vars_list, func_list = interpreter.visit(ast[i][0], vars_list, func_list)
+        #print("vars: ", vars_list)
+        #print("func: ", func_list)
         if result != None:
             result_list.append(result)
+
     return result_list
 
