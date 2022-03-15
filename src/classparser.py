@@ -101,7 +101,18 @@ class CallFunctionNode:
     def __repr__(self) -> str:
         return self.__str__()
 
-Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode, VarAssignNode, WhileNode, FunctionNode, CallFunctionNode]
+class ReturnNode:
+    def __init__(self, return_value: 'Node') -> None:
+        self.return_value = return_value
+
+    def __str__(self) -> str:
+        return f'Return value: ({self.return_value})'
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode, VarAssignNode, WhileNode, FunctionNode, CallFunctionNode, ReturnNode]
 
 #########################################
 # PARSER
@@ -225,6 +236,11 @@ def factor(index: int, tokens: list) -> Tuple[Node,int,]:
     # Check for INT or FLOAT
     if token[0] in (TokensEnum.TOKEN_INT, TokensEnum.TOKEN_FLOAT):
         return NumberNode(token), index+1
+
+    # Check for a RETURN
+    elif tokens[index][0] == TokensEnum.RETURN:
+        expr, new_index = expression(index + 1, tokens)
+        return ReturnNode(expr), new_index
 
     # Check for Var name
     elif tokens[index][0] == TokensEnum.TOKEN_NAME:
