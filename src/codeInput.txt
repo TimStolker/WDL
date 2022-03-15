@@ -1,22 +1,17 @@
-VAR result = 1 ENDE
-WAHREND result < 5 WIEDERHOLEN
-result = result*2
-NELOHREDEIW
+FUNKTION testfunc (a,b){
+    VAR c = 0
+    c = a+5
+    a=a*b+c
+    return a
+}
 
-result+0 ENDE
+VAR yoinky = 10 ENDE
+VAR sploinky = 12 ENDE
+VAR b = 0 ENDE
+b=testfunc(yoinky , sploinky)
 
-VAR a = 10 ENDE
-VAR b = 5 ENDE
-
-ALS a > 10 DANN
-a = a*b
-ANDALS a == 10 DANN
-a = a-b
-ANDERS
-a = a/b
+ALS b > 0 DANN
+b=b+5
 SLA
 
-a+0 ENDE
-
-
-
+b+0 ENDE
