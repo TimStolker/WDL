@@ -101,7 +101,7 @@ class CallFunctionNode:
     def __repr__(self) -> str:
         return self.__str__()
 
-Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode, VarAssignNode, WhileNode, FunctionNode]
+Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode, VarAssignNode, WhileNode, FunctionNode, CallFunctionNode]
 
 #########################################
 # PARSER
@@ -110,16 +110,16 @@ Node = Union[NumberNode,BinaryOperationNode,VarNode, VarAccessNode, IfNode, VarA
 
 def parse(index: int, tokens: list, ast_list: list) -> list:
     result, index = expression(index, tokens)
-    ast_list.append([result])
+    new_ast_list = ast_list+[[result]]
     # In case if the code input ends with an if statement (needs further research)
     # This still needs fixing, if statements tend to return index+1 sometimes
     if tokens[index][1] == 'EOF':
-        return ast_list
+        return new_ast_list
 
     elif tokens[index+1][1] == 'EOF':
-        return ast_list
+        return new_ast_list
     else:
-        return parse(index+1, tokens, ast_list)
+        return parse(index+1, tokens, new_ast_list)
 
 def addParameters(index: int, tokens: list, arg_name_tokens: list) -> Tuple[list, int]:
     # Check for a comma
@@ -127,16 +127,16 @@ def addParameters(index: int, tokens: list, arg_name_tokens: list) -> Tuple[list
         return arg_name_tokens, index
     else:
         # Append the parameter name to the list
-        arg_name_tokens.append(tokens[index+1][1])
-        return addParameters(index+2, tokens, arg_name_tokens)
+        new_arg_name_tokens = arg_name_tokens+[tokens[index+1][1]]
+        return addParameters(index+2, tokens, new_arg_name_tokens)
 
 def addFuncBody(index: int, tokens: list, body_list: list) -> Tuple[list, int]:
     if tokens[index][0] == TokensEnum.TOKEN_END_FUNCTION:
         # return the body list with the next character
-        return body_list, index+1
+        return body_list, index
     expr, new_index = expression(index, tokens)
-    body_list.append([expr])
-    return addFuncBody(new_index, tokens, body_list)
+    new_body_list = body_list+[[expr]]
+    return addFuncBody(new_index, tokens, new_body_list)
 
 
 def appendelifcases(index: int, tokens: list, cases: list) -> Tuple[list, int]:
@@ -147,8 +147,8 @@ def appendelifcases(index: int, tokens: list, cases: list) -> Tuple[list, int]:
         raise Exception("No 'DANN' keyword found in 'ANDALS' statement")
     else:
         expr, new_index = expression(then_index+1, tokens)
-        cases.append((expr,condition))
-        return appendelifcases(new_index, tokens, cases)
+        new_cases = cases+[(expr,condition)]
+        return appendelifcases(new_index, tokens, new_cases)
 
 
 def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
@@ -159,22 +159,23 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
     condition, then_index = expression(index, tokens)
     if tokens[then_index][0] != TokensEnum.THEN:
         raise Exception("No 'DANN' keyword found for if statement")
+
     else:
         # Get the expression after 'DANN'
         expr, elif_index = expression(then_index+1, tokens)
-        cases.append((expr,condition))
+        cases_expr = cases + [(expr,condition)]
         if tokens[elif_index][0] == TokensEnum.ELSE_IF:
             # Store the 'ANDALS' cases
-            cases, new_index = appendelifcases(elif_index, tokens, cases)
+            cases_expr_andals, new_index = appendelifcases(elif_index, tokens, cases_expr)
             if tokens[new_index][0] == TokensEnum.ELSE:
                 else_case, else_index = expression(new_index+1, tokens)
-                return IfNode(cases, else_case), else_index
-            return IfNode(cases, else_case), new_index
+                return IfNode(cases_expr_andals, else_case), else_index
+            return IfNode(cases_expr_andals, else_case), new_index
         elif tokens[elif_index][0] == TokensEnum.ELSE:
             else_case, else_index = expression(elif_index + 1, tokens)
-            return IfNode(cases, else_case), else_index
+            return IfNode(cases_expr, else_case), else_index
         else:
-            return IfNode(cases, else_case), elif_index
+            return IfNode(cases_expr, else_case), elif_index
 
 
 def while_expr(index: int, tokens: list) -> Tuple[WhileNode, int]:
@@ -201,21 +202,19 @@ def func_def(index: int, tokens: list) -> Tuple[FunctionNode, int]:
             # Check for parameter name
             if tokens[index+2][0] == TokensEnum.TOKEN_NAME:
                 # Append the parameters to the list
-                arg_name_tokens.append(tokens[index+2][1])
+                arg_name_tokens_par = arg_name_tokens+[tokens[index+2][1]]
                 # Append other parameters to the list
-                arg_name_tokens, new_index = addParameters(index+3, tokens, arg_name_tokens)
+                new_arg_name_tokens, new_index = addParameters(index+3, tokens, arg_name_tokens_par)
                 if tokens[new_index][0] != TokensEnum.TOKEN_RPAREN:
                     raise Exception("No ')' found in function declaration")
                 else:
+
                     if tokens[new_index+1][0] != TokensEnum.TOKEN_BEGIN_FUNCTION:
                         raise Exception("No '{' in function declaration")
                     # Get the expressions
                     empty_body_list = []
-                    body_list, new_index = addFuncBody(index+2, tokens, empty_body_list)
-                    return FunctionNode(func_name, arg_name_tokens, body_list), new_index
-
-
-
+                    body_list, new_index = addFuncBody(new_index+2, tokens, empty_body_list)
+                    return FunctionNode(func_name, new_arg_name_tokens, body_list), new_index
 
 
 def factor(index: int, tokens: list) -> Tuple[Node,int,]:
@@ -223,14 +222,28 @@ def factor(index: int, tokens: list) -> Tuple[Node,int,]:
 
     # current token
     token = tokens[index]
-
     # Check for INT or FLOAT
     if token[0] in (TokensEnum.TOKEN_INT, TokensEnum.TOKEN_FLOAT):
         return NumberNode(token), index+1
 
     # Check for Var name
     elif tokens[index][0] == TokensEnum.TOKEN_NAME:
-        return VarAccessNode(token), index+1
+        if tokens[index+1][0] != TokensEnum.TOKEN_LPAREN:
+            return VarAccessNode(token), index+1
+        else:
+            # Function call
+            # Get the function name token
+            function_name = tokens[index]
+
+            # Get the parameters
+            arg_tokens = []
+            if tokens[index+2][0] == TokensEnum.TOKEN_INT or tokens[index+2][0] == TokensEnum.TOKEN_NAME:
+                new_arg_tokens = arg_tokens+[tokens[index+2][1]]
+                full_arg_tokens, new_index = addParameters(index+3, tokens, new_arg_tokens)
+                return CallFunctionNode(function_name, full_arg_tokens), new_index
+            else:
+                raise Exception("No arguments found in function call")
+
 
     # Check for (
     elif token[0] == TokensEnum.TOKEN_LPAREN:
@@ -253,8 +266,8 @@ def factor(index: int, tokens: list) -> Tuple[Node,int,]:
 
     # Check for function statement
     elif token[0] == TokensEnum.FUNCTION:
-        func_defenition, new_index = func_def(index+1, tokens)
-        return func_defenition, new_index
+        func_definition, new_index = func_def(index+1, tokens)
+        return func_definition, new_index
 
 def term(index: int, tokens: list) -> Tuple[Node,int]:
     # A term is a mutiply or devision node
@@ -283,7 +296,7 @@ def expression(index: int, tokens: list) -> Tuple[Node,int]:
                 expr, new_index = expression(index+3, tokens)
                 var = VarNode(tokens[index+1], expr)
                 return var, new_index
-    # Check for
+    # Check for var assign
     elif tokens[index][0] == TokensEnum.TOKEN_NAME:
         if tokens[index+1][0] != TokensEnum.TOKEN_EQUAL:
             left, new_index = arithmic(index, tokens)
