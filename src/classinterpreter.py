@@ -16,6 +16,14 @@ class Interpreter:
     def visit_NumberNode(self, node: NumberNode, var_list: list, func_list: list) -> Tuple[int, list, list]:
         return node.token[1], var_list, func_list
 
+    def visit_ReturnNode(self, node: ReturnNode, var_list: list, func_list: list) -> Tuple[int, list, list]:
+        expr = node.return_value
+        expr_value, var_list, func_list = self.visit(expr, var_list, func_list)
+        if type(expr_value) == NumberNode:
+            return expr_value.token[1], var_list, func_list
+
+        return expr_value, var_list, func_list
+
     def visit_BinaryOperationNode(self, node: BinaryOperationNode, var_list: list, func_list: list) -> Tuple[int, list, list]:
         # Check if the node is a variable name
         if type(node.left_node) == VarAccessNode:
@@ -116,35 +124,46 @@ class Interpreter:
         return None, var_list, func_list
 
     def visit_FunctionNode(self, node: FunctionNode, var_list: list, func_list: list) -> Tuple[Union[None,int], list, list]:
+        # Get the function name
         function_name = node.function_name
+
+        # Get the body of the function
         body_node_list = node.body
+
+        # Get the arguments of the function
         arg_names = node.arguments
+
+        # Add the function to the function list
         new_func_list = func_list + [[function_name, body_node_list, arg_names]]
         return None, var_list, new_func_list
 
     def visit_CallFunctionNode(self, node: CallFunctionNode, var_list: list, func_list: list) -> Tuple[Union[None,int], list, list]:
+        # Get the function name
         func_call_name = node.node_to_call
         index = 0
-        function_node = self.getFuncNode(index, func_call_name, func_list)
-        empty_function_var_list = []
-        function_var_list = self.getFuncVarList(index, node.arguments, function_node[2], var_list, empty_function_var_list)
-        result, new_function_var_list = self.goThroughBody(index, function_node, function_var_list, func_list)
-        void_index = 0
-        result = self.searchVarValue(new_function_var_list, result[0].token[1], void_index)
-        # - Fix de arguments door een nieuwe variabelen lijst te maken, waar var (CallArg[0]) = function_node[0]
-        # - Ga door iedere lijn van de body heen
-        # - Als de ast node begint met RETURN, dan returned deze functie die uitgerekende waarde
 
-        #if func_call_name not in func_list.
-        return result.token[1], var_list, func_list
+        # Get the function node with that name
+        function_node = self.getFuncNode(index, func_call_name, func_list)
+
+        empty_function_var_list = []
+        # Make a new var list for this function only
+        function_var_list = self.getFuncVarList(index, node.arguments, function_node[2], var_list, empty_function_var_list)
+
+        # Go though the body and execute every line until the word 'result' shows up, then return the value after result
+        result, new_function_var_list = self.goThroughBody(index, function_node, function_var_list, func_list)
+
+        # Return the result value with the global variable list and function list
+        return result, var_list, func_list
 
     def goThroughBody(self, index: int, function_node: FunctionNode, var_list: list, func_list: list):
         if index > len(function_node[1]):
             raise Exception("No 'return' found")
         else:
-            if type(function_node[1][index][0]) == VarAccessNode:
-                if function_node[1][index][0].token[1] == 'return':
-                    return function_node[1][index+1], var_list
+            # Check voor ReturnNode
+            if type(function_node[1][index][0]) == ReturnNode:
+                expr = function_node[1][index][0]
+                expr_value, var_list, func_list = self.visit(expr, var_list, func_list)
+                return expr_value, var_list
             else:
                 void_return, var_list, void_func = self.visit(function_node[1][index][0], var_list, func_list)
                 return self.goThroughBody(index+1, function_node, var_list, func_list)
