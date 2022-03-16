@@ -6,9 +6,13 @@ FUNKTION testfunc (a,b){
     WAHREND c < 5 WIEDERHOLEN
     c = c+1
     NELOHREDEIW
-    c = c+a+5
+    c=addfive(c)
     a=a*b+c
     RETURN a
+}
+
+FUNKTION addfive (a){
+    RETURN a+5
 }
 
 VAR yoinky = 10 ENDE
@@ -16,12 +20,14 @@ VAR sploinky = 12 ENDE
 VAR a = 777 ENDE
 VAR b = 0 ENDE
 
+a=addfive(a)
+a+0 ENDE
 b=testfunc(yoinky , sploinky)
 
 b+0 ENDE
+
 WAHREND b < 145 WIEDERHOLEN
 b = b+1
 NELOHREDEIW
-
 
 b+0 ENDE
