@@ -4,7 +4,7 @@ from classparser import *
 from typing import Tuple, Union
 import sys
 
-sys.setrecursionlimit(1000)
+sys.setrecursionlimit(1000000)
 
 
 class Interpreter:
@@ -99,10 +99,10 @@ class Interpreter:
         new_var_list = self.checkAssigned(var_list, func_list, node.name, node.value, index)
         return None, new_var_list, func_list
 
-    def visit_IfNode(self, node: IfNode, var_list: list, func_list: list) -> Tuple[Union[None,int],list, list]:
+    def visit_IfNode(self, node: IfNode, var_list: list, func_list: list) -> Tuple[Union[None,int, ReturnNode],list, list]:
         # Go through every case
         case_index = 0
-        expr_value, var_list = self.gothroughcases(node, var_list, func_list, case_index)
+        expr_value, var_list, return_node = self.gothroughcases(node, var_list, func_list, case_index)
         # If all the conditions aren't true
         if expr_value == None:
             if node.else_case:
@@ -112,7 +112,7 @@ class Interpreter:
                 return None, var_list, func_list
         # If a condition is true, but has no return type
         elif expr_value == True:
-            return None, var_list, func_list
+            return return_node, var_list, func_list
         else:
             if node.else_case:
                 else_value, var_list, func_list = self.visit(node.else_case, var_list, func_list)
@@ -166,6 +166,10 @@ class Interpreter:
                 return expr_value, var_list
             else:
                 void_return, var_list, void_func = self.visit(function_node[1][index][0], var_list, func_list)
+                # Check if a ReturnNode was found in the if statements
+                if type(void_return) == ReturnNode:
+                    expr_value, var_list, func_list = self.visit(void_return, var_list, func_list)
+                    return expr_value, var_list
                 return self.goThroughBody(index+1, function_node, var_list, func_list)
 
     def getFuncVarList(self, index: int, callArgsList: list, funcArgsList: list, var_list: list, func_var_list: list ):
@@ -230,18 +234,19 @@ class Interpreter:
         else:
             return self.searchVarValue(var_list, var_name, index+1)
 
-    def gothroughcases(self, node: IfNode, var_list: list, func_list: list, index:int) -> Tuple[Union[int, None],list]:
+    def gothroughcases(self, node: IfNode, var_list: list, func_list: list, index:int) -> Tuple[Union[int, None],list, Union[ReturnNode,None]]:
         if index > len(node.cases)-1:
-            return False, var_list
+            return False, var_list, None
         else:
             condition = node.cases[index][1]
             expr = node.cases[index][0]
             condition_value, var_list, func_list = self.visit(condition, var_list, func_list)
             if condition_value == True:
+                # Check for VarAssignNode
                 if type(expr) == VarAssignNode:
                     expr_value, var_list, func_list = self.visit(expr, var_list, func_list)
-                    return True, var_list
-                expr_value, var_list, func_list = self.visit(expr, var_list, func_list)
-                return expr_value, var_list
+                    return True, var_list, None
+                # Else, it's a return node
+                return True, var_list, node.cases[index][0]
             else:
                 return self.gothroughcases(node, var_list, func_list, index+1)
