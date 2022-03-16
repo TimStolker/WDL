@@ -1,18 +1,27 @@
 FUNKTION testfunc (a,b){
     VAR c = 0
-    c = a+5
+    ALS c == 0 DANN
+    c=c+1
+    SLA
+    WAHREND c < 5 WIEDERHOLEN
+    c = c+1
+    NELOHREDEIW
+    c = c+a+5
     a=a*b+c
-    RETURN a+1
+    RETURN a
 }
 
 VAR yoinky = 10 ENDE
 VAR sploinky = 12 ENDE
+VAR a = 777 ENDE
 VAR b = 0 ENDE
-b=testfunc(yoinky , sploinky)
-b+0 ENDE
 
-ALS b > 0 DANN
-b=b+5
-SLA
+b=testfunc(yoinky , sploinky)
+
+b+0 ENDE
+WAHREND b < 145 WIEDERHOLEN
+b = b+1
+NELOHREDEIW
+
 
 b+0 ENDE
