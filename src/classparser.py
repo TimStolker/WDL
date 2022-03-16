@@ -147,6 +147,10 @@ def addFuncBody(index: int, tokens: list, body_list: list) -> Tuple[list, int]:
         return body_list, index
     expr, new_index = expression(index, tokens)
     new_body_list = body_list+[[expr]]
+    # Because a CallFunctionNode ends with a ')', the next index will be the character after that
+    if type(expr) == VarAssignNode:
+        if type(expr.value) == CallFunctionNode:
+            return addFuncBody(new_index + 1, tokens, new_body_list)
     # Because 'if' and 'while' loops have an ending body node, the next index will be the character after that
     if type(expr) == IfNode or type(expr) == WhileNode:
         return addFuncBody(new_index+1, tokens, new_body_list)
@@ -302,8 +306,6 @@ def arithmic(index: int, tokens:list) -> Tuple[Node,int]:
     return binary_operation(term, (TokensEnum.TOKEN_PLUS, TokensEnum.TOKEN_MINUS), left, new_index, tokens)
 
 def expression(index: int, tokens: list) -> Tuple[Node,int]:
-    # An expression is a plus or minus node
-
     # Check for variable declaration
     if tokens[index][0] == TokensEnum.VAR:
         if tokens[index+1][0] != TokensEnum.TOKEN_NAME:
