@@ -15,16 +15,6 @@ FUNKTION odd (number){
     RETURN even(number)
 }
 
-FUNKTION test (number){
-    VAR b = 17
-    ALS number == 5 DANN
-    RETURN number
-    ANDERS
-    RETURN b+1
-    SLA
-    RETURN b
-}
-
 FUNKTION numbertohundred(number){
     WAHREND number < 100 WIEDERHOLEN
     number=number+1
