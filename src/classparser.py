@@ -147,12 +147,15 @@ def addFuncBody(index: int, tokens: list, body_list: list) -> Tuple[list, int]:
         return body_list, index
     expr, new_index = expression(index, tokens)
     new_body_list = body_list+[[expr]]
+    if type(expr)==ReturnNode:
+        if type(expr.return_value) == CallFunctionNode:
+            return addFuncBody(new_index + 1, tokens, new_body_list)
     # Because a CallFunctionNode ends with a ')', the next index will be the character after that
     if type(expr) == VarAssignNode:
         if type(expr.value) == CallFunctionNode:
             return addFuncBody(new_index + 1, tokens, new_body_list)
     # Because 'if' and 'while' loops have an ending body node, the next index will be the character after that
-    if type(expr) == IfNode or type(expr) == WhileNode:
+    if type(expr) == IfNode or type(expr) == WhileNode or type(expr) == CallFunctionNode:
         return addFuncBody(new_index+1, tokens, new_body_list)
     return addFuncBody(new_index, tokens, new_body_list)
 
@@ -180,8 +183,17 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
 
     else:
         # Get the expression after 'DANN'
-        expr, elif_index = expression(then_index+1, tokens)
+        expr, tmp_index = expression(then_index+1, tokens)
         cases_expr = cases + [(expr,condition)]
+        # Check if a function call has occurred
+        if type(expr) != ReturnNode:
+            if type(expr.value) == CallFunctionNode:
+                elif_index = tmp_index+1
+            else:
+                elif_index = tmp_index
+        else:
+            elif_index = tmp_index
+
         # Check for elif statements
         if tokens[elif_index][0] == TokensEnum.ELSE_IF:
             # Store the 'ANDALS' cases
@@ -192,7 +204,15 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
             return IfNode(cases_expr_andals, else_case), new_index
         # Check for else statement
         elif tokens[elif_index][0] == TokensEnum.ELSE:
-            else_case, else_index = expression(elif_index + 1, tokens)
+            else_case, tmp_index = expression(elif_index + 1, tokens)
+            if type(else_case) != ReturnNode:
+                if type(else_case.value) == CallFunctionNode:
+                    else_index = tmp_index + 1
+                else:
+                    else_index = tmp_index
+            else:
+                else_index = tmp_index
+
             return IfNode(cases_expr, else_case), else_index
         else:
             return IfNode(cases_expr, else_case), elif_index
@@ -205,6 +225,9 @@ def while_expr(index: int, tokens: list) -> Tuple[WhileNode, int]:
         raise Exception("No 'WIEDERHOLEN' declared after condition")
     else:
         body, body_index = expression(loop_index+1, tokens)
+        # Check if a function call is made. If so, the next character will be the one after the ')'
+        if type(body.value) == CallFunctionNode:
+            return WhileNode(condition, body), body_index+1
         return WhileNode(condition, body), body_index
 
 
