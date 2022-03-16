@@ -107,6 +107,7 @@ class Interpreter:
         if expr_value == None:
             if node.else_case:
                 else_value, var_list, func_list = self.visit(node.else_case, var_list, func_list)
+                print("else case: ", else_value)
                 return else_value, var_list, func_list
             else:
                 return None, var_list, func_list
@@ -115,6 +116,9 @@ class Interpreter:
             return return_node, var_list, func_list
         else:
             if node.else_case:
+                print("hier", type(node.else_case))
+                if type(node.else_case) == ReturnNode:
+                    return node.else_case, var_list, func_list
                 else_value, var_list, func_list = self.visit(node.else_case, var_list, func_list)
                 return else_value, var_list, func_list
             return expr_value, var_list, func_list
