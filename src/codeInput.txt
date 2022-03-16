@@ -1,33 +1,42 @@
-FUNKTION testfunc (a,b){
-    VAR c = 0
-    ALS c == 0 DANN
-    c=c+1
+
+FUNKTION even (number){
+    ALS number==0 DANN
+    RETURN 1
     SLA
-    WAHREND c < 5 WIEDERHOLEN
-    c = c+1
-    NELOHREDEIW
-    c=addfive(c)
-    a=a*b+c
-    RETURN a
+    number=number-1
+    RETURN odd(number)
 }
 
-FUNKTION addfive (a){
-    RETURN a+5
+FUNKTION odd (number){
+    ALS number == 0 DANN
+    RETURN 0
+    SLA
+    number=number-1
+    RETURN even(number)
 }
 
-VAR yoinky = 10 ENDE
-VAR sploinky = 12 ENDE
-VAR a = 777 ENDE
-VAR b = 0 ENDE
+FUNKTION test (number){
+    VAR b = 17
+    ALS number == 5 DANN
+    RETURN number
+    ANDERS
+    RETURN b+1
+    SLA
+    RETURN b
+}
 
-a=addfive(a)
+FUNKTION numbertohundred(number){
+    WAHREND number < 100 WIEDERHOLEN
+    number=number+1
+    NELOHREDEIR
+    RETURN number
+}
+
+VAR a = 100 ENDE
+a=odd(a)
 a+0 ENDE
-b=testfunc(yoinky , sploinky)
 
+VAR b = 6 ENDE
+b=numbertohundred(b)
 b+0 ENDE
 
-WAHREND b < 145 WIEDERHOLEN
-b = b+1
-NELOHREDEIW
-
-b+0 ENDE
