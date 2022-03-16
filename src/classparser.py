@@ -147,6 +147,9 @@ def addFuncBody(index: int, tokens: list, body_list: list) -> Tuple[list, int]:
         return body_list, index
     expr, new_index = expression(index, tokens)
     new_body_list = body_list+[[expr]]
+    # Because 'if' and 'while' loops have an ending body node, the next index will be the character after that
+    if type(expr) == IfNode or type(expr) == WhileNode:
+        return addFuncBody(new_index+1, tokens, new_body_list)
     return addFuncBody(new_index, tokens, new_body_list)
 
 
@@ -175,6 +178,7 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
         # Get the expression after 'DANN'
         expr, elif_index = expression(then_index+1, tokens)
         cases_expr = cases + [(expr,condition)]
+        # Check for elif statements
         if tokens[elif_index][0] == TokensEnum.ELSE_IF:
             # Store the 'ANDALS' cases
             cases_expr_andals, new_index = appendelifcases(elif_index, tokens, cases_expr)
@@ -182,6 +186,7 @@ def if_expr(index: int, tokens: list) -> Tuple[IfNode, int]:
                 else_case, else_index = expression(new_index+1, tokens)
                 return IfNode(cases_expr_andals, else_case), else_index
             return IfNode(cases_expr_andals, else_case), new_index
+        # Check for else statement
         elif tokens[elif_index][0] == TokensEnum.ELSE:
             else_case, else_index = expression(elif_index + 1, tokens)
             return IfNode(cases_expr, else_case), else_index
