@@ -24,7 +24,13 @@ Eigen taal (Wütender Deutscher Language)
   * TODO
 
 ## Interpreter-functionaliteiten must-haves:
-TODO
+* De interpreter ondersteunt meerdere functies in dezelfde file
+* Functie parameters worden meegegeven bij het aanroepen van een functie
+* Functies kunnen andere functies aanroepen [voorbeeld](https://github.com/TimStolker/WDL/blob/6cb2b4505c7c52cead0f4b143d1d473af5c9f122/src/codeInput.txt#L7)
+* Functie resultaten kunnen worden weergegeven door deze te koppelen aan een variabele en de variabele te printen door ''variabele'+0 ENDE'
 
 ## Interpreter-functionaliteiten (should/could-haves)
-TODO
+* Advanced language features:
+ * Rekensommen op de correcte manier uitrekenen volgens de wiskundige volgorde (eerste haakjes, dan * en /, dan + en -)
+ * Printen door in de globale scope '+0 ENDE' toe te voegen aan een variabele
+* Eigen taal
