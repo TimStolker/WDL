@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Type
 #########################################
 # TOKENS
 #########################################
@@ -48,15 +47,16 @@ class TokensEnum(Enum):
     NELOHREDEIW = 'NELOHREDEIW'
 
 
-
-
 class Token:
+    # __init__ :: None
     def __init__(self, token_type: TokensEnum, value: str) -> None:
         self.type = token_type
         self.value = value
 
+    # __str__ :: str
     def __str__(self) -> str:
         return f'({self.type}, {self.value})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
