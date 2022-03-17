@@ -1,30 +1,37 @@
 from classparser import *
-from typing import Tuple, Union
+from typing import Tuple, Union, Callable
 import sys
 
 sys.setrecursionlimit(1000000)
 
 
-def smart_divide(func):
-    def inner(a, b):
+# smart_divide :: Callable[[float, float], float] -> Callable[[float, float], float]
+def smart_divide(func: Callable[[float, float], float]) -> Callable[[float, float], float]:
+    def inner(a: float, b: float):
         if b == 0:
             raise Exception("can't devide by 0")
         return func(a, b)
     return inner
 
+
+# divide :: float, float -> float
 @smart_divide
-def divide(a, b):
+def divide(a: float, b: float) -> float:
     return a/b
 
+
 class Interpreter:
+    # visit :: Node, List[token], List[Token] -> int
     def visit(self, node: Node, var_list: List[Token], func_list: List[Token]) -> int:
         method_name = f'visit_{type(node).__name__}'
         method = getattr(self, method_name)
         return method(node, var_list, func_list)
 
+    # visit_NumberNode :: NumberNode, List[Token], List[Token] -> Tuple[int, List[Token], List[Token]]
     def visit_NumberNode(self, node: NumberNode, var_list: List[Token], func_list: List[Token]) -> Tuple[int, List[Token], List[Token]]:
         return node.token[1], var_list, func_list
 
+    # visit_NumberNode :: ReturnNode, List[Token], List[Token] -> Tuple[int, List[Token], List[Token]]
     def visit_ReturnNode(self, node: ReturnNode, var_list: List[Token], func_list: List[Token]) -> Tuple[int, List[Token], List[Token]]:
         expr = node.return_value
         expr_value, var_list, func_list = self.visit(expr, var_list, func_list)
@@ -33,7 +40,8 @@ class Interpreter:
 
         return expr_value, var_list, func_list
 
-    def visit_BinaryOperationNode(self, node: BinaryOperationNode, var_list: List[Token], func_list: List[Token]) -> Tuple[int, List[Token], List[Token]]:
+    # visit_NumberNode :: BinaryOperationNode, List[Token], List[Token] -> Tuple[float, List[Token], List[Token]]
+    def visit_BinaryOperationNode(self, node: BinaryOperationNode, var_list: List[Token], func_list: List[Token]) -> Tuple[float, List[Token], List[Token]]:
         # Check if the node is a variable name
         if type(node.left_node) == VarAccessNode:
             if node.left_node.token[0] == TokensEnum.TOKEN_NAME:
@@ -91,22 +99,26 @@ class Interpreter:
         else:
             raise Exception("ERROR with token: ", node.operation_token[0])
 
+    # visit_NumberNode :: VarNode, List[Token], List[Token] -> Tuple[None, List[Token], List[Token]]
     def visit_VarNode(self, node: VarNode, var_list: list, func_list: List[Token]) -> Tuple[None, list, List[Token]]:
         # Appends the var name to the list
         new_var_list = var_list+[[node]]
         return None, new_var_list, func_list
 
+    # visit_NumberNode :: VarAccessNode, List[Token], List[Token] -> Tuple[Union[Node, int], List[Token], List[Token]]
     def visit_VarAccessNode(self, node: VarAccessNode, var_list: List[Token], func_list: List[Token]) -> Tuple[Union[Node, int], List[Token], List[Token]]:
         var_name = node.token[1]
         index = 0
         value = self.searchVarValue(var_list, var_name, index)
         return value, var_list, func_list
 
+    # visit_NumberNode :: VarAssignNode, List[Token], List[Token] -> Tuple[None, List[Token], List[Token]]
     def visit_VarAssignNode(self, node: VarAssignNode, var_list: List[Token], func_list: List[Token]) -> Tuple[None, List[Token], List[Token]]:
         index = 0
         new_var_list = self.checkAssigned(var_list, func_list, node.name, node.value, index)
         return None, new_var_list, func_list
 
+    # visit_NumberNode :: IfNode, List[Token], List[Token] -> Tuple[Union[None, int, ReturnNode], List[Token], List[Token]]
     def visit_IfNode(self, node: IfNode, var_list: List[Token], func_list: List[Token]) -> Tuple[Union[None, int, ReturnNode], List[Token], List[Token]]:
         # Go through every case
         case_index = 0
@@ -131,10 +143,12 @@ class Interpreter:
                 return else_value, var_list, func_list
             return expr_value, var_list, func_list
 
+    # visit_NumberNode :: WhileNode, List[Token], List[Token] -> Tuple[None, List[Token], List[Token]]
     def visit_WhileNode(self, node: WhileNode, var_list: List[Token], func_list: List[Token]) -> Tuple[None, List[Token], List[Token]]:
         var_list = self.loopNode(node, var_list, func_list)
         return None, var_list, func_list
 
+    # visit_NumberNode :: FunctionNode, List[Token], List[Token] -> Tuple[Union[None, int], List[Token], list]
     def visit_FunctionNode(self, node: FunctionNode, var_list: List[Token], func_list: list) -> Tuple[Union[None, int], List[Token], list]:
         # Get the function name
         function_name = node.function_name
@@ -149,6 +163,7 @@ class Interpreter:
         new_func_list = func_list + [[function_name, body_node_list, arg_names]]
         return None, var_list, new_func_list
 
+    # visit_NumberNode :: CallFunctionNode, List[Token], List[Token] -> Tuple[Union[None, int], List[Token], List[Token]]
     def visit_CallFunctionNode(self, node: CallFunctionNode, var_list: List[Token], func_list: List[Token]) -> Tuple[Union[None, int], List[Token], List[Token]]:
         # Get the function name
         func_call_name = node.node_to_call
@@ -167,6 +182,7 @@ class Interpreter:
         # Return the result value with the global variable list and function list
         return result, var_list, func_list
 
+    # goThoughBody :: int, FunctionNode, List[Token], List[Token] -> Tuple[Union[None, int], List[Token]]
     def goThroughBody(self, index: int, function_node: FunctionNode, var_list: List[Token], func_list: List[Token]) -> Tuple[Union[None, int], List[Token]]:
         if index > len(function_node[1]):
             raise Exception("No 'return' found")
@@ -184,7 +200,8 @@ class Interpreter:
                     return expr_value, var_list
                 return self.goThroughBody(index+1, function_node, var_list, func_list)
 
-    def getFuncVarList(self, index: int, callArgsList: list, funcArgsList: list, var_list: List[Token], func_var_list: list) -> list:
+    # getFuncVarList :: int, list, list, List[Token], List[Token] -> List[Token]
+    def getFuncVarList(self, index: int, callArgsList: list, funcArgsList: list, var_list: List[Token], func_var_list: List[Token]) -> List[Token]:
         if index > len(callArgsList)-1:
             return func_var_list
         var_name = callArgsList[index]
@@ -196,7 +213,8 @@ class Interpreter:
         new_func_var_list = func_var_list + [[node_var]]
         return self.getFuncVarList(index+1, callArgsList, funcArgsList, var_list, new_func_var_list)
 
-    def getFuncNode(self, index: int, func_name: Token, func_list: list) -> FunctionNode:
+    # getFuncNode :: int, Token, List[Token] -> Union[FunctionNode, Token]
+    def getFuncNode(self, index: int, func_name: Token, func_list: List[Token]) -> Union[FunctionNode, Token]:
         if index > len(func_list)-1:
             raise Exception("No function with name: ", func_name[1])
         if func_name[1] == func_list[index][0]:
@@ -204,6 +222,7 @@ class Interpreter:
         else:
             return self.getFuncNode(index+1, func_name, func_list)
 
+    # loopNode :: WhileNode, List[Token], List[Token] -> List[Token]
     def loopNode(self, node: WhileNode, var_list: List[Token], func_list: List[Token]) -> List[Token]:
         condition, var_list, func_list = self.visit(node.condition_node, var_list, func_list)
         if condition is not True:
@@ -212,6 +231,7 @@ class Interpreter:
             void_value, var_list, func_list = self.visit(node.body_node, var_list, func_list)
             return self.loopNode(node, var_list, func_list)
 
+    # checkAssigned :: List[Token], List[Token], str, Node, int -> List[Token]
     def checkAssigned(self, var_list: List[Token], func_list: List[Token], var_name: str, value: Node, index: int) -> List[Token]:
         if index > len(var_list)-1:
             raise Exception("Var ", var_name, "was never assigned")
@@ -232,6 +252,7 @@ class Interpreter:
             # Check for the next variable
             return self.checkAssigned(var_list, func_list, var_name, value, index+1)
 
+    # searchVarValue :: List[Token], str, int -> Node
     def searchVarValue(self, var_list: List[Token], var_name: str, index: int) -> Node:
         # Searches the value of a given variable name
         if index > len(var_list)-1:
@@ -246,6 +267,7 @@ class Interpreter:
         else:
             return self.searchVarValue(var_list, var_name, index+1)
 
+    # gothroughcases :: IfNode, List[Token], int -> Tuple[Union[int, None], List[Token], Union[ReturnNode, None]]
     def gothroughcases(self, node: IfNode, var_list: List[Token], func_list: List[Token], index: int) -> Tuple[Union[int, None], List[Token], Union[ReturnNode, None]]:
         if index > len(node.cases)-1:
             return False, var_list, None
