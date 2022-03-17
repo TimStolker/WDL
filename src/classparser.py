@@ -6,114 +6,150 @@ from typing import Tuple, Union, List, Callable
 
 
 class NumberNode:
-    def __init__(self, token: [Tuple[TokensEnum, Union[str, int, float, Token]]]) -> None:
+    # __init__ :: Token -> None
+    def __init__(self, token: Token) -> None:
         self.token = token
 
+    # __init__ :: str
     def __str__(self) -> str:
-        return f'{self.token}'
+        return f'NumberNode: ({self.token})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class VarAccessNode:
-    def __init__(self, token: [Tuple[TokensEnum, Union[str, int, float, Token]]]) -> None:
+    # __init__ :: Token -> None
+    def __init__(self, token: Token) -> None:
         self.token = token
 
+    # __init__ :: str
     def __str__(self) -> str:
-        return f'{self.token}'
+        return f'VarAccessNode: ({self.token})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class VarAssignNode:
-    def __init__(self, var_node: [Tuple[TokensEnum, Union[str, int, float, Token]]], value: 'Node'):
+    # __init__ :: Token, Node -> None
+    def __init__(self, var_node: Token, value: 'Node') -> None:
         self.name = var_node[1]
         self.value = value
 
+    # __init__ :: str
+    def __str__(self) -> str:
+        return f'VarAssignNode: ({self.name}, {self.value})'
+
+    # __repr__ :: str
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 class BinaryOperationNode:
-    def __init__(self, left_node: 'Node', operation_token: [Tuple[TokensEnum, Union[str, int, float, Token]]], right_node: 'Node') -> None:
+    # __init__ :: Node, Token, Node -> None
+    def __init__(self, left_node: 'Node', operation_token: Token, right_node: 'Node') -> None:
         self.left_node = left_node
         self.operation_token = operation_token
         self.right_node = right_node
 
+    # __init__ :: str
     def __str__(self) -> str:
-        return f'({self.left_node}, {self.operation_token}, {self.right_node})'
+        return f'BinaryOperationNode: ({self.left_node}, {self.operation_token}, {self.right_node})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class VarNode:
-    def __init__(self, name: [Tuple[TokensEnum, Union[str, int, float, Token]]], var_value: 'Node') -> None:
+    # __init__ :: Token, Node -> None
+    def __init__(self, name: Token, var_value: 'Node') -> None:
         self.name = name
         self.var_value = var_value
 
+    # __init__ :: str
     def __str__(self) -> str:
-        return f'Var: ({self.name},{self.var_value})'
+        return f'VarNode: ({self.name},{self.var_value})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class IfNode:
+    # __init__ :: list, Union['Node', None] -> None
     def __init__(self, cases: list, else_case: Union['Node', None]) -> None:
         self.cases = cases
         self.else_case = else_case
 
+    # __init__ :: str
     def __str__(self) -> str:
         return f'IfNode: ({self.cases}, {self.else_case})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class WhileNode:
-    def __init__(self, condition_node: 'Node', body_node: 'Node'):
+    # __init__ :: Node, Node -> None
+    def __init__(self, condition_node: 'Node', body_node: 'Node') -> None:
         self.condition_node = condition_node
         self.body_node = body_node
 
+    # __init__ :: str
     def __str__(self) -> str:
         return f'WhileNode: ({self.condition_node}, {self.body_node})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class FunctionNode:
-    def __init__(self, function_name: [Tuple[TokensEnum, Union[str, int, float, Token]]], arguments: list, body: list) -> None:
+    # __init__ :: Token, list, List[Node] -> None
+    def __init__(self, function_name: Token, arguments: list, body: List['Node']) -> None:
         self.function_name = function_name
         self.arguments = arguments
         self.body = body
 
+    # __init__ :: str
     def __str__(self) -> str:
-        return f'Function: ({self.function_name}, {self.arguments}, {self.body})'
+        return f'FunctionNode: ({self.function_name}, {self.arguments}, {self.body})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class CallFunctionNode:
-    def __init__(self, node_to_call: [Tuple[TokensEnum, Union[str, int, float, Token]]], arguments: list):
+    # __init__ :: Token, list -> None
+    def __init__(self, node_to_call: Token, arguments: list) -> None:
         self.node_to_call = node_to_call
         self.arguments = arguments
 
+    # __init__ :: str
     def __str__(self) -> str:
-        return f'FunctionCall: ({self.node_to_call}, {self.arguments})'
+        return f'CallFunctionNode: ({self.node_to_call}, {self.arguments})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
 
 class ReturnNode:
+    # __init__ :: Node -> None
     def __init__(self, return_value: 'Node') -> None:
         self.return_value = return_value
 
+    # __init__ :: str
     def __str__(self) -> str:
-        return f'Return value: ({self.return_value})'
+        return f'ReturnNode: ({self.return_value})'
 
+    # __repr__ :: str
     def __repr__(self) -> str:
         return self.__str__()
 
@@ -125,7 +161,8 @@ Node = Union[NumberNode, BinaryOperationNode, VarNode, VarAccessNode, IfNode, Va
 #########################################
 
 
-def parse(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]], ast_list: list) -> list:
+# parse :: int, List[Token], List[List[Node]] -> List[List[Node]]
+def parse(index: int, tokens: List[Token], ast_list: List[List[Node]]) -> List[List[Node]]:
     result, index = expression(index, tokens)
     new_ast_list = ast_list+[[result]]
     # In case if the code input ends with an if statement (needs further research)
@@ -139,7 +176,8 @@ def parse(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Toke
         return parse(index+1, tokens, new_ast_list)
 
 
-def addParameters(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]], arg_name_tokens: list) -> Tuple[list, int]:
+# parse :: int, List[Token], List[str] -> Tuple[int, int]
+def addParameters(index: int, tokens: List[Token], arg_name_tokens: List[str]) -> Tuple[list, int]:
     # Check for a comma
     if tokens[index][0] != TokensEnum.TOKEN_COMMA:
         return arg_name_tokens, index
@@ -149,7 +187,8 @@ def addParameters(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, flo
         return addParameters(index+2, tokens, new_arg_name_tokens)
 
 
-def addFuncBody(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]], body_list: list) -> Tuple[list, int]:
+# addFuncBody :: int, List[Token], List[Node] -> Tuple[List[Node], int]
+def addFuncBody(index: int, tokens: List[Token], body_list: List[Node]) -> Tuple[List[Node], int]:
     if tokens[index][0] == TokensEnum.TOKEN_END_FUNCTION:
         # return the body list with the next character
         return body_list, index
@@ -168,7 +207,8 @@ def addFuncBody(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float
     return addFuncBody(new_index, tokens, new_body_list)
 
 
-def appendelifcases(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]], cases: list) -> Tuple[list, int]:
+# appendelifcases :: int, List[Token], list -> Tuple[List, int]
+def appendelifcases(index: int, tokens: List[Token], cases: list) -> Tuple[list, int]:
     if tokens[index][0] != TokensEnum.ELSE_IF:
         return cases, index
     condition, then_index = expression(index+1, tokens)
@@ -180,8 +220,8 @@ def appendelifcases(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, f
         return appendelifcases(new_index, tokens, new_cases)
 
 
-def if_expr(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[IfNode, int]:
-
+# if_expr :: int, List[Token] -> Tuple[IfNode, int]
+def if_expr(index: int, tokens: List[Token]) -> Tuple[IfNode, int]:
     cases = []
     else_case = None
     # Get the conditional expression
@@ -226,8 +266,8 @@ def if_expr(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, To
             return IfNode(cases_expr, else_case), elif_index
 
 
-def while_expr(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[WhileNode, int]:
-
+# while_expr :: int, List[Token] -> Tuple[WhileNode, int]
+def while_expr(index: int, tokens: List[Token]) -> Tuple[WhileNode, int]:
     condition, loop_index = expression(index, tokens)
     if tokens[loop_index][0] != TokensEnum.LOOP:
         raise Exception("No 'WIEDERHOLEN' declared after condition")
@@ -239,7 +279,8 @@ def while_expr(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float,
         return WhileNode(condition, body), body_index
 
 
-def func_def(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[FunctionNode, int]:
+# func_def :: int, List[Token] -> Tuple[FunctionNode, int]
+def func_def(index: int, tokens: List[Token]) -> Tuple[FunctionNode, int]:
     # Check for function name
     if tokens[index][0] != TokensEnum.TOKEN_NAME:
         raise Exception("No function name found")
@@ -268,7 +309,8 @@ def func_def(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, T
                     return FunctionNode(func_name, new_arg_name_tokens, body_list), new_index
 
 
-def factor(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[Node, int]:
+# factor :: int, List[Token] -> Tuple[Node, int]
+def factor(index: int, tokens: List[Token]) -> Tuple[Node, int]:
     # The factor is the node that will be used in a term
 
     # current token
@@ -325,7 +367,8 @@ def factor(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Tok
         return func_definition, new_index
 
 
-def term(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[Node, int]:
+# term :: int, List[token] -> Tuple[Node, int]
+def term(index: int, tokens: List[Token]) -> Tuple[Node, int]:
     # A term is a multiply or division binary operation node
 
     # Get the left side of operation
@@ -333,12 +376,14 @@ def term(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token
     return binary_operation(factor, (TokensEnum.TOKEN_MULTIPLY, TokensEnum.TOKEN_DIVIDE), left, new_index, tokens)
 
 
-def arithmic(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[Node, int]:
+# arithmic :: int, List[Token] -> Tuple[Node, int]
+def arithmic(index: int, tokens: List[Token]) -> Tuple[Node, int]:
     left, new_index = term(index, tokens)
     return binary_operation(term, (TokensEnum.TOKEN_PLUS, TokensEnum.TOKEN_MINUS), left, new_index, tokens)
 
 
-def expression(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[Node, int]:
+# expression :: int, List[Token] -> Tuple[Node, int]
+def expression(index: int, tokens: List[Token]) -> Tuple[Node, int]:
     # Check for variable declaration
     if tokens[index][0] == TokensEnum.VAR:
         if tokens[index+1][0] != TokensEnum.TOKEN_NAME:
@@ -365,8 +410,8 @@ def expression(index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float,
     return binary_operation(arithmic, (TokensEnum.TOKEN_GREATER, TokensEnum.TOKEN_LESSER, TokensEnum.TOKEN_LESSER_EQUAL, TokensEnum.TOKEN_GREATER_EQUAL, TokensEnum.TOKEN_DOUBLE_EQUAL), left, new_index, tokens)
 
 
-# Using func as decorator
-def binary_operation(func: Callable[[int, List[Tuple[TokensEnum, Union[str, int, float, Token]]]], Tuple[Node, int]], operations: tuple, left: Node, index: int, tokens: List[Tuple[TokensEnum, Union[str, int, float, Token]]]) -> Tuple[Node, int]:
+# binary_operation :: Callable[[int, List[Token]], Tuple[Node, int]], tuple, Node, int, List[Token] -> Tuple[Node, int]
+def binary_operation(func: Callable[[int, List[Token]], Tuple[Node, int]], operations: tuple, left: Node, index: int, tokens: List[Token]) -> Tuple[Node, int]:
     # A binary operation is an algorithmic expression
     # Check for end line
     if tokens[index][0] == TokensEnum.ENDE or tokens[index][0] == TokensEnum.TOKEN_END_FUNCTION or tokens[index][0] == TokensEnum.SLA or tokens[index][0] == TokensEnum.NELOHREDEIW:
