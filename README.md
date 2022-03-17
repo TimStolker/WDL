@@ -15,12 +15,12 @@ Eigen taal (Wütender Deutscher Language)
 * Object-printing voor elke class
   * [Token class](https://github.com/TimStolker/WDL/blob/27fe3f530ccaa7b728086572317585c9ccc169dc/src/classtoken.py#L53)
   * [Alle node classes](https://github.com/TimStolker/WDL/blob/27fe3f530ccaa7b728086572317585c9ccc169dc/src/classparser.py#L4)
-* Decorator //TODO
-* Type-annotatie Haskell-style //TODO
+* Decorator [smart_divide](https://github.com/TimStolker/WDL/blob/9f0d0e977541fd81cff48cb0825f3eeb894042e6/src/classinterpreter.py#L8)
+* Type-annotatie Haskell-style: ja
 * Type-annotatie Python-stijl: Ja
 * Minstens drie toepassingen van hogere-orde functies:
   * [binary_operation](https://github.com/TimStolker/WDL/blob/27fe3f530ccaa7b728086572317585c9ccc169dc/src/classparser.py#L361)
-  * TODO
+  * [smart_divide](https://github.com/TimStolker/WDL/blob/9f0d0e977541fd81cff48cb0825f3eeb894042e6/src/classinterpreter.py#L8)
   * TODO
 
 ## Interpreter-functionaliteiten must-haves:
