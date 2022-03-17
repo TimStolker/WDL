@@ -17,7 +17,7 @@ Eigen taal (Wütender Deutscher Language)
   * [Alle node classes](https://github.com/TimStolker/WDL/blob/27fe3f530ccaa7b728086572317585c9ccc169dc/src/classparser.py#L4)
 * Decorator [smart_divide](https://github.com/TimStolker/WDL/blob/9f0d0e977541fd81cff48cb0825f3eeb894042e6/src/classinterpreter.py#L8)
 * Type-annotatie Haskell-style: ja
-* Type-annotatie Python-stijl: Ja
+* Type-annotatie Python-stijl: ja
 * Minstens drie toepassingen van hogere-orde functies:
   * [binary_operation](https://github.com/TimStolker/WDL/blob/27fe3f530ccaa7b728086572317585c9ccc169dc/src/classparser.py#L361)
   * [smart_divide](https://github.com/TimStolker/WDL/blob/9f0d0e977541fd81cff48cb0825f3eeb894042e6/src/classinterpreter.py#L8)
