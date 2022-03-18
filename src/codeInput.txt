@@ -22,11 +22,12 @@ FUNKTION numbertohundred(number){
     RETURN number
 }
 
-VAR a = 100 ENDE
+VAR a = 102 ENDE
 a=odd(a)
 a+0 ENDE
 
 VAR b = 6 ENDE
 b=numbertohundred(b)
 b+0 ENDE
+
 
