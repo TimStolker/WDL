@@ -41,7 +41,7 @@ class Interpreter:
         return expr_value, var_list, func_list
 
     # visit_NumberNode :: BinaryOperationNode, List[Token], List[Token] -> Tuple[float, List[Token], List[Token]]
-    def visit_BinaryOperationNode(self, node: BinaryOperationNode, var_list: List[Token], func_list: List[Token]) -> Tuple[float, List[Token], List[Token]]:
+    def visit_BinaryOperationNode(self, node: [BinaryOperationNode], var_list: List[Token], func_list: List[Token]) -> Tuple[float, List[Token], List[Token]]:
         # Check if the node is a variable name
         if type(node.left_node) == VarAccessNode:
             if node.left_node.token[0] == TokensEnum.TOKEN_NAME:
@@ -61,6 +61,7 @@ class Interpreter:
         else:
             left, var_list, func_list = self.visit(node.left_node, var_list, func_list)
 
+        # Check if the node is a variable access node
         if type(node.right_node) == VarAccessNode:
             if node.right_node.token[0] == TokensEnum.TOKEN_NAME:
                 var_name = node.right_node.token[1]
@@ -76,6 +77,7 @@ class Interpreter:
         else:
             right, var_list, func_list = self.visit(node.right_node, var_list, func_list)
 
+        # Perform binary operation
         if node.operation_token[0] == TokensEnum.TOKEN_PLUS:
             return left+right, var_list, func_list
         elif node.operation_token[0] == TokensEnum.TOKEN_MINUS:
@@ -107,6 +109,7 @@ class Interpreter:
 
     # visit_NumberNode :: VarAccessNode, List[Token], List[Token] -> Tuple[Union[Node, int], List[Token], List[Token]]
     def visit_VarAccessNode(self, node: VarAccessNode, var_list: List[Token], func_list: List[Token]) -> Tuple[Union[Node, int], List[Token], List[Token]]:
+        # Returns the value of the var
         var_name = node.token[1]
         index = 0
         value = self.searchVarValue(var_list, var_name, index)
@@ -114,12 +117,15 @@ class Interpreter:
 
     # visit_NumberNode :: VarAssignNode, List[Token], List[Token] -> Tuple[None, List[Token], List[Token]]
     def visit_VarAssignNode(self, node: VarAssignNode, var_list: List[Token], func_list: List[Token]) -> Tuple[None, List[Token], List[Token]]:
+        # Set new value to var
         index = 0
         new_var_list = self.checkAssigned(var_list, func_list, node.name, node.value, index)
         return None, new_var_list, func_list
 
     # visit_NumberNode :: IfNode, List[Token], List[Token] -> Tuple[Union[None, int, ReturnNode], List[Token], List[Token]]
     def visit_IfNode(self, node: IfNode, var_list: List[Token], func_list: List[Token]) -> Tuple[Union[None, int, ReturnNode], List[Token], List[Token]]:
+        # Return the value if a condition is true, else return 'None' as value
+
         # Go through every case
         case_index = 0
         expr_value, var_list, return_node = self.gothroughcases(node, var_list, func_list, case_index)
@@ -143,6 +149,7 @@ class Interpreter:
 
     # visit_NumberNode :: WhileNode, List[Token], List[Token] -> Tuple[None, List[Token], List[Token]]
     def visit_WhileNode(self, node: WhileNode, var_list: List[Token], func_list: List[Token]) -> Tuple[None, List[Token], List[Token]]:
+        # Update the var list
         var_list = self.loopNode(node, var_list, func_list)
         return None, var_list, func_list
 
@@ -182,6 +189,7 @@ class Interpreter:
 
     # goThoughBody :: int, FunctionNode, List[Token], List[Token] -> Tuple[Union[None, int], List[Token]]
     def goThroughBody(self, index: int, function_node: FunctionNode, var_list: List[Token], func_list: List[Token]) -> Tuple[Union[None, int], List[Token]]:
+        # Return the expression after 'RETURN'
         if index > len(function_node[1]):
             raise Exception("No 'return' found")
         else:
@@ -231,6 +239,7 @@ class Interpreter:
 
     # checkAssigned :: List[Token], List[Token], str, Node, int -> List[Token]
     def checkAssigned(self, var_list: List[Token], func_list: List[Token], var_name: str, value: Node, index: int) -> List[Token]:
+        # Assigns the new value to the var
         if index > len(var_list)-1:
             raise Exception("Var ", var_name, "was never assigned")
         # Variable name has been found in list
@@ -267,6 +276,7 @@ class Interpreter:
 
     # gothroughcases :: IfNode, List[Token], int -> Tuple[Union[int, None], List[Token], Union[ReturnNode, None]]
     def gothroughcases(self, node: IfNode, var_list: List[Token], func_list: List[Token], index: int) -> Tuple[Union[int, None], List[Token], Union[ReturnNode, None]]:
+        # If no conditions are true: Return False, if condition is true: Return true, if condition is true and the expression is a return node: Return true and the expression
         if index > len(node.cases)-1:
             return False, var_list, None
         else:
