@@ -1,4 +1,4 @@
-from classinterpreter import *
+from Interpreter import *
 from typing import List, Union
 
 #########################################
