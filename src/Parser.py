@@ -35,7 +35,7 @@ class VarAccessNode:
 
 class VarAssignNode:
     # __init__ :: Token, Node -> None
-    def __init__(self, var_node: Token, value: 'Node') -> None:
+    def __init__(self, var_node: [Token], value: 'Node') -> None:
         self.name = var_node[1]
         self.value = value
 
@@ -162,7 +162,8 @@ Node = Union[NumberNode, BinaryOperationNode, VarNode, VarAccessNode, IfNode, Va
 
 
 # parse :: int, List[Token], List[List[Node]] -> List[List[Node]]
-def parse(index: int, tokens: List[Token], ast_list: List[List[Node]]) -> List[List[Node]]:
+def parse(index: int, tokens: [List[Token]], ast_list: List[List[Node]]) -> List[List[Node]]:
+    # Returns a list of ast lists
     result, index = expression(index, tokens)
     new_ast_list = ast_list+[[result]]
     # In case if the code input ends with an if statement (needs further research)
@@ -177,7 +178,8 @@ def parse(index: int, tokens: List[Token], ast_list: List[List[Node]]) -> List[L
 
 
 # parse :: int, List[Token], List[str] -> Tuple[int, int]
-def addParameters(index: int, tokens: List[Token], arg_name_tokens: List[str]) -> Tuple[list, int]:
+def addParameters(index: int, tokens: [List[Token]], arg_name_tokens: List[str]) -> Tuple[list, int]:
+    # Add all the parameters of a function to a list
     # Check for a comma
     if tokens[index][0] != TokensEnum.TOKEN_COMMA:
         return arg_name_tokens, index
@@ -188,27 +190,31 @@ def addParameters(index: int, tokens: List[Token], arg_name_tokens: List[str]) -
 
 
 # addFuncBody :: int, List[Token], List[Node] -> Tuple[List[Node], int]
-def addFuncBody(index: int, tokens: List[Token], body_list: List[Node]) -> Tuple[List[Node], int]:
+def addFuncBody(index: int, tokens: [List[Token]], body_list: List[Node]) -> Tuple[List[Node], int]:
+    # Returns a list of body nodes
     if tokens[index][0] == TokensEnum.TOKEN_END_FUNCTION:
         # return the body list with the next character
         return body_list, index
     expr, new_index = expression(index, tokens)
     new_body_list = body_list+[[expr]]
+    # Check for ReturnNode
     if type(expr) == ReturnNode:
         if type(expr.return_value) == CallFunctionNode:
+            # Because a CallFunctionNode ends with a ')', the next index will be the character after that
             return addFuncBody(new_index + 1, tokens, new_body_list)
-    # Because a CallFunctionNode ends with a ')', the next index will be the character after that
+    # Check for VarAssignNode
     if type(expr) == VarAssignNode:
         if type(expr.value) == CallFunctionNode:
+            # Because 'if' and 'while' loops have an ending body node, the next index will be the character after that
             return addFuncBody(new_index + 1, tokens, new_body_list)
-    # Because 'if' and 'while' loops have an ending body node, the next index will be the character after that
     if type(expr) == IfNode or type(expr) == WhileNode or type(expr) == CallFunctionNode:
         return addFuncBody(new_index+1, tokens, new_body_list)
     return addFuncBody(new_index, tokens, new_body_list)
 
 
 # appendelifcases :: int, List[Token], list -> Tuple[List, int]
-def appendelifcases(index: int, tokens: List[Token], cases: list) -> Tuple[list, int]:
+def appendelifcases(index: int, tokens: [List[Token]], cases: list) -> Tuple[list, int]:
+    # Appends the 'else if' cases to a list and returns it
     if tokens[index][0] != TokensEnum.ELSE_IF:
         return cases, index
     condition, then_index = expression(index+1, tokens)
@@ -221,7 +227,8 @@ def appendelifcases(index: int, tokens: List[Token], cases: list) -> Tuple[list,
 
 
 # if_expr :: int, List[Token] -> Tuple[IfNode, int]
-def if_expr(index: int, tokens: List[Token]) -> Tuple[IfNode, int]:
+def if_expr(index: int, tokens: [List[Token]]) -> Tuple[IfNode, int]:
+    # Returns an IfNode
     cases = []
     else_case = None
     # Get the conditional expression
@@ -267,7 +274,9 @@ def if_expr(index: int, tokens: List[Token]) -> Tuple[IfNode, int]:
 
 
 # while_expr :: int, List[Token] -> Tuple[WhileNode, int]
-def while_expr(index: int, tokens: List[Token]) -> Tuple[WhileNode, int]:
+def while_expr(index: int, tokens: [List[Token]]) -> Tuple[WhileNode, int]:
+    # Returns a WhileNode
+    # Get the condition
     condition, loop_index = expression(index, tokens)
     if tokens[loop_index][0] != TokensEnum.LOOP:
         raise Exception("No 'WIEDERHOLEN' declared after condition")
@@ -280,7 +289,7 @@ def while_expr(index: int, tokens: List[Token]) -> Tuple[WhileNode, int]:
 
 
 # func_def :: int, List[Token] -> Tuple[FunctionNode, int]
-def func_def(index: int, tokens: List[Token]) -> Tuple[FunctionNode, int]:
+def func_def(index: int, tokens: [List[Token]]) -> Tuple[FunctionNode, int]:
     # Check for function name
     if tokens[index][0] != TokensEnum.TOKEN_NAME:
         raise Exception("No function name found")
@@ -310,7 +319,7 @@ def func_def(index: int, tokens: List[Token]) -> Tuple[FunctionNode, int]:
 
 
 # factor :: int, List[Token] -> Tuple[Node, int]
-def factor(index: int, tokens: List[Token]) -> Tuple[Node, int]:
+def factor(index: int, tokens: [List[Token]]) -> Tuple[Node, int]:
     # The factor is the node that will be used in a term
 
     # current token
@@ -378,12 +387,15 @@ def term(index: int, tokens: List[Token]) -> Tuple[Node, int]:
 
 # arithmic :: int, List[Token] -> Tuple[Node, int]
 def arithmic(index: int, tokens: List[Token]) -> Tuple[Node, int]:
+    # Arithmic is a plus or minus binary operation node
+
+    # Get the left side of operation
     left, new_index = term(index, tokens)
     return binary_operation(term, (TokensEnum.TOKEN_PLUS, TokensEnum.TOKEN_MINUS), left, new_index, tokens)
 
 
 # expression :: int, List[Token] -> Tuple[Node, int]
-def expression(index: int, tokens: List[Token]) -> Tuple[Node, int]:
+def expression(index: int, tokens: [List[Token]]) -> Tuple[Node, int]:
     # Check for variable declaration
     if tokens[index][0] == TokensEnum.VAR:
         if tokens[index+1][0] != TokensEnum.TOKEN_NAME:
@@ -406,13 +418,15 @@ def expression(index: int, tokens: List[Token]) -> Tuple[Node, int]:
             var = VarAssignNode(tokens[index], expr)
             return var, new_index
 
+    # Get the left side of operation
     left, new_index = arithmic(index, tokens)
     return binary_operation(arithmic, (TokensEnum.TOKEN_GREATER, TokensEnum.TOKEN_LESSER, TokensEnum.TOKEN_LESSER_EQUAL, TokensEnum.TOKEN_GREATER_EQUAL, TokensEnum.TOKEN_DOUBLE_EQUAL), left, new_index, tokens)
 
 
 # binary_operation :: Callable[[int, List[Token]], Tuple[Node, int]], tuple, Node, int, List[Token] -> Tuple[Node, int]
-def binary_operation(func: Callable[[int, List[Token]], Tuple[Node, int]], operations: tuple, left: Node, index: int, tokens: List[Token]) -> Tuple[Node, int]:
+def binary_operation(func: Callable[[int, List[Token]], Tuple[Node, int]], operations: tuple, left: Node, index: int, tokens: [List[Token]]) -> Tuple[Node, int]:
     # A binary operation is an algorithmic expression
+
     # Check for end line
     if tokens[index][0] == TokensEnum.ENDE or tokens[index][0] == TokensEnum.TOKEN_END_FUNCTION or tokens[index][0] == TokensEnum.SLA or tokens[index][0] == TokensEnum.NELOHREDEIW:
         return left, index
