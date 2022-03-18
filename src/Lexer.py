@@ -37,7 +37,8 @@ def next_word(text: str, position: int) -> str:
 
 
 # next_token :: List[Token], int,  str,  int -> List[Token]
-def next_token(tokens: List[Token], index: int, text: str, line: int) -> List[Token]:
+def next_token(tokens: [List[Token]], index: int, text: str, line: int) -> List[Token]:
+    # Converts the next character to a token and adds it to the list
     # Check if the current position in still in the text
     if index > len(text) - 1:
         return tokens+[(TokensEnum.TOKEN_EOF, 'EOF')]
