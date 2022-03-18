@@ -152,10 +152,8 @@ def getResults(index: int, ast: List[List[Node]], vars_list: List[Token], func_l
         return result_list
     else:
         result, new_vars_list, new_func_list = interpreter.visit(ast[index][0], vars_list, func_list)
-        if result is not None:
-            new_result_list = result_list + [result]
-            return getResults(index+1, ast, new_vars_list, new_func_list, interpreter, new_result_list)
-        return getResults(index + 1, ast, new_vars_list, new_func_list, interpreter, result_list)
+        new_result_list = result_list + [result]
+        return getResults(index + 1, ast, new_vars_list, new_func_list, interpreter, new_result_list)
 
 
 # run :: str -> List[int]
@@ -174,5 +172,6 @@ def run(text: str) -> List[int]:
     result_list = []
     index = 0
     result_list = getResults(index, ast, vars_list, func_list, interpreter, result_list)
+    clean_result = list(filter(lambda x: x is not None, result_list))
 
-    return result_list
+    return clean_result
