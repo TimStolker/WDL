@@ -21,7 +21,7 @@ Eigen taal (Wütender Deutscher Language)
 * Minstens drie toepassingen van hogere-orde functies:
   * [binary_operation](https://github.com/TimStolker/WDL/blob/27fe3f530ccaa7b728086572317585c9ccc169dc/src/classparser.py#L361)
   * [smart_divide](https://github.com/TimStolker/WDL/blob/9f0d0e977541fd81cff48cb0825f3eeb894042e6/src/classinterpreter.py#L8)
-  * TODO
+  * [filter](https://github.com/TimStolker/WDL/blob/c329f224a4f9f83bb4af550fa7d4126e747a59f8/src/Lexer.py#L175)
 
 ## Interpreter-functionaliteiten must-haves:
 * De interpreter ondersteunt meerdere functies in dezelfde file
