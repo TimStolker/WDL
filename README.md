@@ -45,7 +45,7 @@ SLA
 
 ALS 'conditie' DANN
 'body'
-ANDER
+ANDERS
 'body'
 SLA
 ```
