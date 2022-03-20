@@ -218,12 +218,9 @@ def appendelifcases(index: int, tokens: [List[Token]], cases: list) -> Tuple[lis
     if tokens[index][0] != TokensEnum.ELSE_IF:
         return cases, index
     condition, then_index = expression(index+1, tokens)
-    if tokens[then_index][0] != TokensEnum.THEN:
-        raise Exception("No 'DANN' keyword found in 'ANDALS' statement")
-    else:
-        expr, new_index = expression(then_index+1, tokens)
-        new_cases = cases+[(expr, condition)]
-        return appendelifcases(new_index, tokens, new_cases)
+    expr, new_index = expression(then_index+1, tokens)
+    new_cases = cases+[(expr, condition)]
+    return appendelifcases(new_index, tokens, new_cases)
 
 
 # if_expr :: int, List[Token] -> Tuple[IfNode, int]
@@ -233,44 +230,41 @@ def if_expr(index: int, tokens: [List[Token]]) -> Tuple[IfNode, int]:
     else_case = None
     # Get the conditional expression
     condition, then_index = expression(index, tokens)
-    if tokens[then_index][0] != TokensEnum.THEN:
-        raise Exception("No 'DANN' keyword found for if statement")
 
-    else:
-        # Get the expression after 'DANN'
-        expr, tmp_index = expression(then_index+1, tokens)
-        cases_expr = cases + [(expr, condition)]
-        # Check if a function call has occurred
-        if type(expr) != ReturnNode:
-            if type(expr.value) == CallFunctionNode:
-                elif_index = tmp_index+1
-            else:
-                elif_index = tmp_index
+    # Get the expression after 'DANN'
+    expr, tmp_index = expression(then_index+1, tokens)
+    cases_expr = cases + [(expr, condition)]
+    # Check if a function call has occurred
+    if type(expr) != ReturnNode:
+        if type(expr.value) == CallFunctionNode:
+            elif_index = tmp_index+1
         else:
             elif_index = tmp_index
+    else:
+        elif_index = tmp_index
 
-        # Check for elif statements
-        if tokens[elif_index][0] == TokensEnum.ELSE_IF:
-            # Store the 'ANDALS' cases
-            cases_expr_andals, new_index = appendelifcases(elif_index, tokens, cases_expr)
-            if tokens[new_index][0] == TokensEnum.ELSE:
-                else_case, else_index = expression(new_index+1, tokens)
-                return IfNode(cases_expr_andals, else_case), else_index
-            return IfNode(cases_expr_andals, else_case), new_index
-        # Check for else statement
-        elif tokens[elif_index][0] == TokensEnum.ELSE:
-            else_case, tmp_index = expression(elif_index + 1, tokens)
-            if type(else_case) != ReturnNode:
-                if type(else_case.value) == CallFunctionNode:
-                    else_index = tmp_index + 1
-                else:
-                    else_index = tmp_index
+    # Check for elif statements
+    if tokens[elif_index][0] == TokensEnum.ELSE_IF:
+        # Store the 'ANDALS' cases
+        cases_expr_andals, new_index = appendelifcases(elif_index, tokens, cases_expr)
+        if tokens[new_index][0] == TokensEnum.ELSE:
+            else_case, else_index = expression(new_index+1, tokens)
+            return IfNode(cases_expr_andals, else_case), else_index
+        return IfNode(cases_expr_andals, else_case), new_index
+    # Check for else statement
+    elif tokens[elif_index][0] == TokensEnum.ELSE:
+        else_case, tmp_index = expression(elif_index + 1, tokens)
+        if type(else_case) != ReturnNode:
+            if type(else_case.value) == CallFunctionNode:
+                else_index = tmp_index + 1
             else:
                 else_index = tmp_index
-
-            return IfNode(cases_expr, else_case), else_index
         else:
-            return IfNode(cases_expr, else_case), elif_index
+            else_index = tmp_index
+
+        return IfNode(cases_expr, else_case), else_index
+    else:
+        return IfNode(cases_expr, else_case), elif_index
 
 
 # while_expr :: int, List[Token] -> Tuple[WhileNode, int]
@@ -278,44 +272,29 @@ def while_expr(index: int, tokens: [List[Token]]) -> Tuple[WhileNode, int]:
     # Returns a WhileNode
     # Get the condition
     condition, loop_index = expression(index, tokens)
-    if tokens[loop_index][0] != TokensEnum.LOOP:
-        raise Exception("No 'WIEDERHOLEN' declared after condition")
-    else:
-        body, body_index = expression(loop_index+1, tokens)
-        # Check if a function call is made. If so, the next character will be the one after the ')'
-        if type(body.value) == CallFunctionNode:
-            return WhileNode(condition, body), body_index+1
-        return WhileNode(condition, body), body_index
+    body, body_index = expression(loop_index+1, tokens)
+    # Check if a function call is made. If so, the next character will be the one after the ')'
+    if type(body.value) == CallFunctionNode:
+        return WhileNode(condition, body), body_index+1
+    return WhileNode(condition, body), body_index
 
 
 # func_def :: int, List[Token] -> Tuple[FunctionNode, int]
 def func_def(index: int, tokens: [List[Token]]) -> Tuple[FunctionNode, int]:
     # Check for function name
-    if tokens[index][0] != TokensEnum.TOKEN_NAME:
-        raise Exception("No function name found")
-    else:
-        func_name = tokens[index][1]
-        # Check for '('
-        if tokens[index+1][0] != TokensEnum.TOKEN_LPAREN:
-            raise Exception("No '(' found in function declaration")
-        else:
-            arg_name_tokens = []
-            # Check for parameter name
-            if tokens[index+2][0] == TokensEnum.TOKEN_NAME:
-                # Append the parameters to the list
-                arg_name_tokens_par = arg_name_tokens+[tokens[index+2][1]]
-                # Append other parameters to the list
-                new_arg_name_tokens, new_index = addParameters(index+3, tokens, arg_name_tokens_par)
-                if tokens[new_index][0] != TokensEnum.TOKEN_RPAREN:
-                    raise Exception("No ')' found in function declaration")
-                else:
 
-                    if tokens[new_index+1][0] != TokensEnum.TOKEN_BEGIN_FUNCTION:
-                        raise Exception("No '{' in function declaration")
-                    # Get the expressions
-                    empty_body_list = []
-                    body_list, new_index = addFuncBody(new_index+2, tokens, empty_body_list)
-                    return FunctionNode(func_name, new_arg_name_tokens, body_list), new_index
+    func_name = tokens[index][1]
+
+    arg_name_tokens = []
+    # Check for parameter name
+    if tokens[index+2][0] == TokensEnum.TOKEN_NAME:
+        # Append the parameters to the list
+        arg_name_tokens_par = arg_name_tokens+[tokens[index+2][1]]
+        # Append other parameters to the list
+        new_arg_name_tokens, new_index = addParameters(index+3, tokens, arg_name_tokens_par)
+        empty_body_list = []
+        body_list, new_index = addFuncBody(new_index+2, tokens, empty_body_list)
+        return FunctionNode(func_name, new_arg_name_tokens, body_list), new_index
 
 
 # factor :: int, List[Token] -> Tuple[Node, int]
@@ -348,8 +327,6 @@ def factor(index: int, tokens: [List[Token]]) -> Tuple[Node, int]:
                 new_arg_tokens = arg_tokens+[tokens[index+2][1]]
                 full_arg_tokens, new_index = addParameters(index+3, tokens, new_arg_tokens)
                 return CallFunctionNode(function_name, full_arg_tokens), new_index
-            else:
-                raise Exception("No arguments found in function call")
 
     # Check for (
     elif token[0] == TokensEnum.TOKEN_LPAREN:
@@ -357,8 +334,6 @@ def factor(index: int, tokens: [List[Token]]) -> Tuple[Node, int]:
         # Check for )
         if tokens[new_index][0] == TokensEnum.TOKEN_RPAREN:
             return expr, new_index+1
-        else:
-            raise Exception("No ) found", tokens[new_index], new_index)
 
     # Check for IF statement
     elif token[0] == TokensEnum.IF:
@@ -398,16 +373,9 @@ def arithmic(index: int, tokens: List[Token]) -> Tuple[Node, int]:
 def expression(index: int, tokens: [List[Token]]) -> Tuple[Node, int]:
     # Check for variable declaration
     if tokens[index][0] == TokensEnum.VAR:
-        if tokens[index+1][0] != TokensEnum.TOKEN_NAME:
-            raise Exception("Expected variable name")
-        else:
-            # Get the value
-            if tokens[index+2][0] != TokensEnum.TOKEN_EQUAL:
-                raise Exception("Expected '=' for variable declare")
-            else:
-                expr, new_index = expression(index+3, tokens)
-                var = VarNode(tokens[index+1], expr)
-                return var, new_index
+        expr, new_index = expression(index+3, tokens)
+        var = VarNode(tokens[index+1], expr)
+        return var, new_index
     # Check for var assign
     elif tokens[index][0] == TokensEnum.TOKEN_NAME:
         if tokens[index+1][0] != TokensEnum.TOKEN_EQUAL:
