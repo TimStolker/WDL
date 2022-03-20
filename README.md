@@ -38,7 +38,8 @@ Eigen taal (Wütender Deutscher Language)
 ## Hoe te gebruiken
 * Variabelen kunnen worden aangemaakt met: ```VAR 'var naam' = 'waarde' ```
 * If/else statements kunnen gebruikt worden met: 
-```ALS 'conditie' DANN
+```
+ALS 'conditie' DANN
 'body (1 regel/statement)'
 SLA
 
@@ -49,12 +50,14 @@ ANDER
 SLA
 ```
 * While loops kunnen gebruikt worden met:
-```WAHREND 'conditie' WIEDERHOLEN
+```
+WAHREND 'conditie' WIEDERHOLEN
 'body (1 regel/statement)'
 NELOHREDEIW
 ```
 * Functies kunnen aagemaakt worden met:
-```FUNKTION 'functie naam' ('var', 'var'){
+```
+FUNKTION 'functie naam' ('var', 'var'){
 'body (moet een RETURN 'var' hebben, mag meerdere lijnen zijn)'
 }
 ```
