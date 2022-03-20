@@ -34,3 +34,27 @@ Eigen taal (Wütender Deutscher Language)
  * Rekensommen op de correcte manier uitrekenen volgens de wiskundige volgorde (eerste haakjes, dan * en /, dan + en -)
  * Printen door in de globale scope '+0 ENDE' toe te voegen aan een variabele
 * Eigen taal
+
+## Hoe te gebruiken
+* Variabelen kunnen worden aangemaakt met: ```VAR 'var naam' = 'waarde' ```
+* If/else statements kunnen gebruikt worden met: 
+```ALS 'conditie' DANN
+'body (1 regel/statement)'
+SLA
+
+ALS 'conditie' DANN
+'body'
+ANDER
+'body'
+SLA
+```
+* While loops kunnen gebruikt worden met:
+```WAHREND 'conditie' WIEDERHOLEN
+'body (1 regel/statement)'
+NELOHREDEIW
+```
+* Functies kunnen aagemaakt worden met:
+```FUNKTION 'functie naam' ('var', 'var'){
+'body (moet een RETURN 'var' hebben, mag meerdere lijnen zijn)'
+}
+```
