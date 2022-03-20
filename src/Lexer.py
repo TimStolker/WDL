@@ -17,8 +17,6 @@ def next_digit(text: str, position: int, dot_count: int) -> str:
     # Check if the current character is a digit or a dot
     if not check_eof(text, position) and text[position].isdigit() or not check_eof(text, position) and text[position] == '.':
         if text[position] == '.':
-            if dot_count == 1:
-                raise Exception("Float only has 1 dot")
 
             dot_count += 1
             return text[position] + next_digit(text, position + 1, dot_count)
@@ -141,9 +139,6 @@ def next_token(tokens: [List[Token]], index: int, text: str, line: int) -> List[
 
     elif current_char == '\n':
         return next_token(tokens, index + 1, text, line + 1)
-
-    else:
-        raise Exception("Illegal character: " "'" + current_char + "'" + " at line: " + str(line))
 
 
 # getResults :: int, List[List[Node]], List[Token], List[Token], Interpreter, List[Union[None, int]] -> List[Union[None, int]]
