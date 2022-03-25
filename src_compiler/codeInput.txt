@@ -1,0 +1,23 @@
+FUNKTION multiply (number, numbert){
+    ALS number < 5 DANN
+    RETURN number
+    SLA
+    VAR b = 10
+    b = numbert+5
+    RETURN b
+}
+
+FUNKTION whiletest(a){
+    WAHREND a < 100 WIEDERHOLEN
+    a=a+1
+    NELOHREDEIW
+    RETURN a
+}
+
+
+
+FUNKTION min(a,b){
+    VAR result = 0
+    result = a-b
+    RETURN result
+}
