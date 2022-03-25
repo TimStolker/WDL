@@ -1,33 +1,23 @@
-
-FUNKTION even (number){
-    ALS number==0 DANN
-    RETURN 1
-    SLA
-    number=number-1
-    RETURN odd(number)
-}
-
-FUNKTION odd (number){
-    ALS number == 0 DANN
-    RETURN 0
-    SLA
-    number=number-1
-    RETURN even(number)
-}
-
-FUNKTION numbertohundred(number){
-    WAHREND number < 100 WIEDERHOLEN
-    number=number+1
-    NELOHREDEIR
+FUNKTION multiply (number, numbert){
+    ALS number < 5 DANN
     RETURN number
+    SLA
+    VAR b = 10
+    b = numbert+5
+    RETURN b
 }
 
-VAR a = 102 ENDE
-a=odd(a)
-a+0 ENDE
+FUNKTION whiletest(a){
+    WAHREND a < 100 WIEDERHOLEN
+    a=a+1
+    NELOHREDEIW
+    RETURN a
+}
 
-VAR b = 6 ENDE
-b=numbertohundred(b)
-b+0 ENDE
 
 
+FUNKTION min(a,b){
+    VAR result = 0
+    result = a-b
+    RETURN result
+}
