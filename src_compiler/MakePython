@@ -1,0 +1,9 @@
+run: venv/bin/python3
+	./venv/bin/python3 main.py
+	make run
+
+clean:
+	rm -f *.asm
+	make clean
+
+
