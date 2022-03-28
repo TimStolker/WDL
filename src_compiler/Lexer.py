@@ -1,5 +1,5 @@
-from Interpreter import *
 import Compiler
+from Parser import *
 from typing import List, Union
 
 #########################################
@@ -142,18 +142,8 @@ def next_token(tokens: [List[Token]], index: int, text: str, line: int) -> List[
         return next_token(tokens, index + 1, text, line + 1)
 
 
-# getResults :: int, List[List[Node]], List[Token], List[Token], Interpreter, List[Union[None, int]] -> List[Union[None, int]]
-def getResults(index: int, ast: List[List[Node]], vars_list: List[Token], func_list: List[Token], interpreter: Interpreter, result_list: List[Union[None, int]]) -> List[Union[None, int]]:
-    if index > len(ast)-1:
-        return result_list
-    else:
-        result, new_vars_list, new_func_list = interpreter.visit(ast[index][0], vars_list, func_list)
-        new_result_list = result_list + [result]
-        return getResults(index + 1, ast, new_vars_list, new_func_list, interpreter, new_result_list)
-
-
 # run :: str -> List[int]
-def run(text: str) -> List[int]:
+def run(text: str) -> None:
     # Identify the tokens
     tokens = []
     tokens = next_token(tokens, 0, text, 0)
@@ -164,13 +154,3 @@ def run(text: str) -> List[int]:
     # Compiler
     Compiler.run(ast)
 
-    # Interpreter
-    interpreter = Interpreter()
-    vars_list = []
-    func_list = []
-    result_list = []
-    index = 0
-    result_list = getResults(index, ast, vars_list, func_list, interpreter, result_list)
-    clean_result = list(filter(lambda x: x is not None, result_list))
-
-    return clean_result
