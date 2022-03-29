@@ -13,3 +13,18 @@ FUNKTION odd (number){
     number=number-1
     RETURN even(number)
 }
+
+FUNKTION numbertohundred(number){
+    WAHREND number < 100 WIEDERHOLEN
+    number=number+1
+    NELOHREDEIR
+    RETURN number
+}
+
+FUNKTION pythagoras(left, right){
+    left = left*left
+    right = right*right
+    VAR result = left
+    result = result+right
+    RETURN result
+}
