@@ -22,9 +22,11 @@ FUNKTION numbertohundred(number){
 }
 
 FUNKTION pythagoras(left, right){
-    left = left*left
-    right = right*right
-    VAR result = left
-    result = result+right
+    VAR leftresult = 0
+    VAR rightresult = 0
+    leftresult = left*left
+    rightresult = right*right
+    VAR result = 0
+    result = leftresult+rightresult
     RETURN result
 }
