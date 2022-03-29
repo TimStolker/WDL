@@ -83,25 +83,29 @@ add    sp, #4
 bx    lr
 
 pythagoras:
-sub    sp, #12
+sub    sp, #20
 str    r0, [sp]
 str    r1, [sp, #4]
+mov    r0, #0
+str    r0, [sp, #8]
+mov    r0, #0
+str    r0, [sp, #12]
 ldr    r0, [sp]
 ldr    r1, [sp]
 mul    r0, r0, r1
-str    r0, [sp]
+str    r0, [sp, #8]
 ldr    r0, [sp, #4]
 ldr    r1, [sp, #4]
 mul    r0, r0, r1
-str    r0, [sp, #4]
-ldr    r0, [sp]
-str    r0, [sp, #8]
+str    r0, [sp, #12]
+mov    r0, #0
+str    r0, [sp, #16]
 ldr    r0, [sp, #8]
-ldr    r1, [sp, #4]
+ldr    r1, [sp, #12]
 add    r0, r0, r1
-str    r0, [sp, #8]
-ldr    r0, [sp, #8]
-add    sp, #12
+str    r0, [sp, #16]
+ldr    r0, [sp, #16]
+add    sp, #20
 bx    lr
 
 
