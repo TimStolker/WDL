@@ -61,3 +61,21 @@ FUNKTION 'functie naam' ('var', 'var'){
 'body (moet een RETURN 'var' hebben, mag meerdere lijnen zijn)'
 }
 ```
+
+# Compiler 
+## Makefile
+Ik heb de makefile hwlib structuur van [Wouter van Ooien](https://github.com/wovo/hwlib) gebruikt voor het compileren van de .asm file met de unit-tests.
+
+Om de code te runnen moet je alleen de MakePython file aanroepen met:
+```make -f MakePython run```
+Om alles te cleanen kan je de makefile met 'clean' aanroepen:
+```make -f MakePython clean```
+
+## Functionaliteiten
+* Kan if-statements omzetten naar asm
+* Kan while-statements omzetten naar asm
+* Kan variabelen declerations omzetten naar asm
+* Kan variabelen veranderingen omzetten naar asm
+* Kan rekensommen omzetten naar asm
+* Kan Return-statements omzetten naar asm
+* Kan function-calls omzetten naar asm
