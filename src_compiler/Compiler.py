@@ -2,7 +2,9 @@ from Parser import *
 from typing import Tuple, Union, Callable, TextIO
 
 
+# getFuncNameList :: int, List[List[Node]], List[str] -> List[str]
 def getFuncNameList(index: int, ast: List[List[Node]], func_list: List[str]) -> List[str]:
+    # Returns a list of all function names
     if index > len(ast)-1:
         return func_list
     if type(ast[index][0]) == FunctionNode:
@@ -11,7 +13,9 @@ def getFuncNameList(index: int, ast: List[List[Node]], func_list: List[str]) -> 
     return getFuncNameList(index+1, ast, func_list)
 
 
-def writeList(index: int, file: TextIO, instruction_list: List) -> None:
+# writeList :: int, TextIO, List[str] -> List[str]
+def writeList(index: int, file: TextIO, instruction_list: List[str]) -> None:
+    # Write the instructions to the .asm file
     if index > len(instruction_list)-1:
         file.write("\n")
         return
@@ -19,7 +23,9 @@ def writeList(index: int, file: TextIO, instruction_list: List) -> None:
     return writeList(index+1, file, instruction_list)
 
 
+# getVarSP :: int, Union[VarNode, VarAccessNode, ReturnNode, str], List[Tuple[str, int]] -> int
 def getVarSP(index: int, node: Union[VarNode, VarAccessNode, ReturnNode, str], var_list: List[Tuple[str, int]]) -> int:
+    # Returns the stackpointer placement from a node
     if type(node) == VarAccessNode:
         if node.token[1] == var_list[index][0]:
             return var_list[index][1]
@@ -34,14 +40,18 @@ def getVarSP(index: int, node: Union[VarNode, VarAccessNode, ReturnNode, str], v
     return getVarSP(index+1, node, var_list)
 
 
-def getArgsList(index: int, node: FunctionNode, var_list: List[Tuple[str, int]]):
+# getArgsList :: int, FunctionNode, List[Tuple[str, int]] -> List[Tuple[str, int]]
+def getArgsList(index: int, node: FunctionNode, var_list: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
+    # Returns a list of function parameters
     if index > len(node.arguments)-1:
         return var_list
     new_var_list = var_list + [(node.arguments[index], index*4)]
     return getArgsList(index+1, node, new_var_list)
 
 
-def getVarList(index: int, node: FunctionNode, var_list: List[Tuple[str, int]], sp: int):
+# getVarList :: int, FunctionNode, List[Tuple[str, int]], int -> List[Tuple[str, int]]
+def getVarList(index: int, node: FunctionNode, var_list: List[Tuple[str, int]], sp: int) -> List[Tuple[str, int]]:
+    # Returns a list of variables with their stackpointer placement
     if index > len(node.body)-1:
         return var_list
     elif type(node.body[index][0]) == VarNode:
@@ -50,7 +60,9 @@ def getVarList(index: int, node: FunctionNode, var_list: List[Tuple[str, int]], 
     return getVarList(index+1, node, var_list, sp)
 
 
-def loadArgs(index: int, arg_list: List[Tuple[str, int]], func_list):
+# loadArgs :: int, List[Tuple[str, int]], List[str] -> List[str]
+def loadArgs(index: int, arg_list: List[Tuple[str, int]], func_list: List[str]) -> List[str]:
+    # Returns a list of arguments with their stackpointer placement
     if index > len(arg_list)-1:
         return func_list
     if index == 0:
@@ -60,7 +72,9 @@ def loadArgs(index: int, arg_list: List[Tuple[str, int]], func_list):
     return loadArgs(index+1, arg_list, new_func_list)
 
 
+# checkFuncCall :: int, FunctionNode -> bool
 def checkFuncCall(index: int, node: FunctionNode) -> bool:
+    # Returns a bool based on if a function is called within the function
     if index > len(node.body)-1:
         return False
     if type(node.body[index][0])==ReturnNode:
