@@ -126,13 +126,28 @@ class Compiler:
 
     # visit_VarNode :: VarNode, List[Tuple[str, int]], List[str], int, bool -> Tuple[List[str], List[Tuple[str, int]]]
     def visit_VarNode(self, node: VarNode, vars_list: List[Tuple[str, int]], func_list: List[str], func_num: int, call: bool) -> Tuple[List[str], List[Tuple[str, int]]]:
-        mov_func_list = func_list+["mov    r0, #"+str(node.var_value.token[1])]
-        index = 0
-        sp = getVarSP(index, node, vars_list)
-        if sp == 0:
-            str_func_list = mov_func_list+["str    r0, [sp]"]
-        str_func_list = mov_func_list+["str    r0, [sp, #"+str(sp)+"]"]
-        return str_func_list, vars_list
+        if type(node.var_value) == VarAccessNode:
+            index = 0
+            sp = getVarSP(index, node.var_value, vars_list)
+            if sp == 0:
+                ldr_func_list = func_list + ["ldr    r0, [sp]"]
+            else:
+                ldr_func_list = func_list + ["ldr    r0, [sp, #" + str(sp) + "]"]
+            varsp = getVarSP(index, node, vars_list)
+            if varsp == 0:
+                str_func_list = ldr_func_list + ["str   r0, [sp]"]
+            else:
+                str_func_list = ldr_func_list + ["str    r0, [sp, #" + str(varsp) + "]"]
+
+            return str_func_list, vars_list
+        else:
+            mov_func_list = func_list+["mov    r0, #"+str(node.var_value.token[1])]
+            index = 0
+            sp = getVarSP(index, node, vars_list)
+            if sp == 0:
+                str_func_list = mov_func_list+["str    r0, [sp]"]
+            str_func_list = mov_func_list+["str    r0, [sp, #"+str(sp)+"]"]
+            return str_func_list, vars_list
 
     # visit_VarAssignNode :: VarAssignNode, List[Tuple[str, int]], List[str], int, bool -> Tuple[List[str], List[Tuple[str, int]]]
     def visit_VarAssignNode(self, node: VarAssignNode, vars_list: List[Tuple[str, int]], func_list: List[str], func_num: int, call: bool) -> Tuple[List[str], List[Tuple[str, int]]]:
@@ -320,7 +335,6 @@ class Compiler:
         if type(node.body[index][0]) == ReturnNode:
             return_func_list, vars_list = self.visit(node.body[index][0], vars_list, func_list, func_num, call)
             return return_func_list
-
         new_func_list, vars_list = self.visit(node.body[index][0], vars_list, func_list, func_num, call)
         return self.goThroughBody(index+1, node, vars_list, new_func_list, func_num, call)
 
