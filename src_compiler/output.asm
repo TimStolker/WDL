@@ -4,6 +4,8 @@
 
 .global even
 .global odd
+.global numbertohundred
+.global pythagoras
 
 even:
 push    {r7, lr}
@@ -56,5 +58,50 @@ ldr    r0, [sp]
 b    even
 add    sp, #4
 pop    {r7, pc}
+
+numbertohundred:
+sub    sp, #4
+str    r0, [sp]
+b    .LBB2_1
+
+.LBB2_1:
+ldr    r0, [sp]
+cmp    r0, #100
+blt    .LBB2_2
+b    .LBB2_3
+
+.LBB2_2:
+ldr    r0, [sp]
+mov    r1, #1
+add    r0, r0, r1
+str    r0, [sp]
+b    .LBB2_1
+
+.LBB2_3:
+ldr    r0, [sp]
+add    sp, #4
+bx    lr
+
+pythagoras:
+sub    sp, #12
+str    r0, [sp]
+str    r1, [sp, #4]
+ldr    r0, [sp]
+ldr    r1, [sp]
+mul    r0, r0, r1
+str    r0, [sp]
+ldr    r0, [sp, #4]
+ldr    r1, [sp, #4]
+mul    r0, r0, r1
+str    r0, [sp, #4]
+ldr    r0, [sp]
+str    r0, [sp, #8]
+ldr    r0, [sp, #8]
+ldr    r1, [sp, #4]
+add    r0, r0, r1
+str    r0, [sp, #8]
+ldr    r0, [sp, #8]
+add    sp, #12
+bx    lr
 
 
