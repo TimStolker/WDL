@@ -64,7 +64,7 @@ FUNKTION 'functie naam' ('var', 'var'){
 
 # Compiler 
 ## Makefile
-Ik heb de makefile hwlib structuur van [Wouter van Ooien](https://github.com/wovo/hwlib) gebruikt voor het compileren van de .asm file met de unit-tests.
+Ik heb de makefile hwlib structuur van [Wouter van Ooijen](https://github.com/wovo/hwlib) gebruikt voor het compileren van de .asm file met de unit-tests.
 
 Om de code te runnen moet je alleen de MakePython file aanroepen met:
 ```make -f MakePython run```
