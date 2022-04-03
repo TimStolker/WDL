@@ -1,0 +1,32 @@
+FUNKTION even (number){
+    ALS number==0 DANN
+    RETURN 1
+    SLA
+    number=number-1
+    RETURN odd(number)
+}
+
+FUNKTION odd (number){
+    ALS number == 0 DANN
+    RETURN 0
+    SLA
+    number=number-1
+    RETURN even(number)
+}
+
+FUNKTION numbertohundred(number){
+    WAHREND number < 100 WIEDERHOLEN
+    number=number+1
+    NELOHREDEIR
+    RETURN number
+}
+
+FUNKTION pythagoras(left, right){
+    VAR leftresult = 0
+    VAR rightresult = 0
+    leftresult = left*left
+    rightresult = right*right
+    VAR result = 0
+    result = leftresult+rightresult
+    RETURN result
+}
